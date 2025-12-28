@@ -1,0 +1,1416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HOU SHIQIN | Digital Garden</title>
+  <style>
+    :root {
+      --bg-color: #f4f7f9;
+      --text-color: #0b1a28;
+      --accent-color: #0056b3;
+      --secondary-text: #546e7a;
+      --tree-color: rgba(0, 86, 179, 0.3);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      overflow-x: hidden;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* --- INTERACTIVE BACKGROUND CANVAS --- */
+    #canvas-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      pointer-events: auto;
+    }
+
+    /* --- GROWTH LINE (SVG) --- */
+    #growth-svg {
+      position: fixed;
+      top: 0;
+      left: 50%;
+      height: 100vh;
+      width: 100px;
+      transform: translateX(-50%);
+      z-index: 0;
+      pointer-events: none;
+      overflow: visible;
+    }
+
+    .trunk-path {
+      fill: none;
+      stroke: var(--tree-color);
+      stroke-width: 2;
+      stroke-linecap: round;
+    }
+
+    a { text-decoration: none; color: inherit; cursor: pointer; }
+
+    /* --- Animations --- */
+    .fade-in-up {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 1s ease, transform 1s ease;
+    }
+    .fade-in-up.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* --- Navigation --- */
+    nav {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      padding: 2rem 5%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      color: var(--text-color);
+    }
+    .logo { font-weight: 800; letter-spacing: -0.5px; font-size: 1.2rem; }
+
+    /* --- Hero Section --- */
+    header {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 10%;
+      padding-top: 60px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-layout {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2rem; /* 减小间距 */
+      width: 100%;
+      max-width: 1100px;
+      position: relative;
+    }
+
+    /* 更新：减小竖版照片容器大小 */
+    .hero-photo-box {
+      width: 100%;
+      max-width: 320px; /* 进一步减小最大宽度 */
+      aspect-ratio: 3/4; /* 保持3:4竖版比例 */
+      position: relative;
+      z-index: 2;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 
+        0 15px 40px rgba(0, 0, 0, 0.12),
+        0 8px 20px rgba(0, 0, 0, 0.08),
+        0 0 0 2px rgba(255, 255, 255, 0.8), /* 内边框 */
+        0 0 0 4px var(--accent-color); /* 外边框 */
+      margin-bottom: 0.5rem; /* 减小下边距 */
+    }
+
+    .hero-photo {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 30%; /* 调整图片显示位置，避免人物头部被裁剪 */
+      border-radius: 20px;
+      transition: transform 0.5s ease, box-shadow 0.5s ease;
+    }
+    .hero-photo:hover { 
+      transform: scale(1.05);
+    }
+
+    .hero-text {
+      width: 100%;
+      padding-top: 0;
+      z-index: 2;
+      text-align: center;
+    }
+
+    .name-container h1 {
+      font-size: clamp(3rem, 6vw, 5rem); /* 减小字体大小 */
+      font-weight: 800;
+      line-height: 0.9;
+      color: #0b1a28;
+      margin-bottom: 0.3rem; /* 减小边距 */
+    }
+
+    .chinese-name {
+      font-size: 1.5rem; /* 减小字体大小 */
+      font-weight: 300;
+      color: var(--secondary-text);
+      letter-spacing: 0.15rem; /* 减小字间距 */
+      margin-bottom: 1.5rem; /* 减小边距 */
+      display: block;
+    }
+
+    /* --- TYPING SLOGAN (Restored) --- */
+    .slogan-container {
+      display: inline-block;
+      margin-top: 1rem; /* 减小上边距 */
+    }
+
+    .slogan {
+      font-family: 'Courier New', monospace;
+      font-size: 1rem; /* 减小字体大小 */
+      color: var(--accent-color);
+      border-right: 2px solid var(--accent-color);
+      white-space: nowrap;
+      overflow: hidden;
+      animation: typing 3.5s steps(40, end), blink-caret .75s step-end infinite;
+      max-width: 100%;
+      font-weight: 600;
+    }
+
+    /* Animation Keyframes */
+    @keyframes typing { from { width: 0 } to { width: 100% } }
+    @keyframes blink-caret { from, to { border-color: transparent } 50% { border-color: var(--accent-color) } }
+
+    /* --- Container --- */
+    .container {
+      width: 90%;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 4rem 0;
+      position: relative;
+      z-index: 2;
+    }
+
+    .section-title {
+      text-align: center;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: var(--secondary-text);
+      margin-bottom: 5rem;
+      background: var(--bg-color);
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      position: relative;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 1px solid var(--tree-color);
+      border-radius: 50px;
+    }
+
+    /* --- Branching List Items --- */
+    .list-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 2.5rem 2rem;
+      margin-bottom: 2rem;
+      background: rgba(255,255,255,0.6);
+      backdrop-filter: blur(5px);
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.8);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+      transition: all 0.4s ease;
+      position: relative;
+    }
+    /* Connecting line to the trunk */
+    .list-item::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: -50px;
+      width: 50px;
+      height: 1px;
+      background: var(--tree-color);
+      z-index: -1;
+      opacity: 0;
+    }
+
+    .list-item:hover {
+      transform: translateY(-5px) scale(1.01);
+      background: rgba(255,255,255,0.9);
+      box-shadow: 0 20px 40px rgba(0, 86, 179, 0.1);
+    }
+
+    .item-left { text-align: left; }
+    .item-right { text-align: right; }
+
+    .item-meta { font-family: 'Courier New', monospace; color: var(--accent-color); font-size: 0.85rem; margin-bottom: 0.2rem; }
+    .item-title { font-size: 1.3rem; font-weight: 700; color: #0b1a28; }
+    .item-desc { font-size: 1rem; color: #555; font-weight: 300; }
+
+    /* --- Works Grid --- */
+    .works-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 4rem 3rem;
+    }
+
+    .work-category-header {
+      grid-column: 1 / -1;
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 300;
+      margin-bottom: 3rem;
+      color: #0b1a28;
+    }
+
+    .card {
+      display: block;
+      cursor: pointer;
+      transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      background: #fff;
+      padding: 1rem;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+      border: 1px solid rgba(0,0,0,0.02);
+    }
+    .card:hover { transform: translateY(-15px); box-shadow: 0 20px 50px rgba(0, 86, 179, 0.15); }
+
+    .card-image-box {
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: #eee;
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+      border-radius: 8px;
+      position: relative;
+    }
+    
+    /* 视频封面容器 */
+    .video-cover-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+      overflow: hidden;
+      border-radius: 8px;
+    }
+    
+    .video-thumbnail {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.7s ease;
+    }
+    
+    .video-cover-container:hover .video-thumbnail {
+      transform: scale(1.05);
+    }
+    
+    /* 播放按钮 */
+    .play-button {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 70px;
+      height: 70px;
+      background-color: rgba(0, 86, 179, 0.9);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      z-index: 2;
+    }
+    
+    .play-button::after {
+      content: '';
+      display: block;
+      width: 0;
+      height: 0;
+      border-left: 18px solid white;
+      border-top: 12px solid transparent;
+      border-bottom: 12px solid transparent;
+      margin-left: 4px;
+    }
+    
+    .video-cover-container:hover .play-button {
+      background-color: rgba(0, 86, 179, 1);
+      transform: translate(-50%, -50%) scale(1.1);
+    }
+    
+    /* 竖屏视频容器 */
+    .vertical-video-container {
+      position: relative;
+      padding-bottom: 177.78%; /* 9:16竖屏的高宽比 */
+      height: 0;
+      overflow: hidden;
+      max-width: 100%;
+      border-radius: 8px;
+      background: #000;
+    }
+    
+    .vertical-video-cover {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+    }
+    
+    .vertical-video-thumbnail {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    /* 竖屏播放按钮 */
+    .vertical-play-button {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 60px;
+      height: 60px;
+      background-color: rgba(0, 86, 179, 0.9);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      z-index: 2;
+    }
+    
+    .vertical-play-button::after {
+      content: '';
+      display: block;
+      width: 0;
+      height: 0;
+      border-left: 15px solid white;
+      border-top: 10px solid transparent;
+      border-bottom: 10px solid transparent;
+      margin-left: 4px;
+    }
+    
+    .vertical-video-cover:hover .vertical-play-button {
+      background-color: rgba(0, 86, 179, 1);
+      transform: translate(-50%, -50%) scale(1.1);
+    }
+
+    .card-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.7s ease; }
+    
+    /* Dimension Jump专用样式 - 显示完整海报 */
+    .dimension-jump-container .card-img {
+      object-fit: contain;
+      background-color: #f0f0f0;
+    }
+    
+    /* 普通图片悬停效果 */
+    .card:hover .card-img { transform: scale(1.05); }
+    
+    /* Dimension Jump图片悬停效果 - 不要缩放，只显示完整图片 */
+    .dimension-jump-container:hover .card-img {
+      transform: none;
+    }
+
+    /* 视频iframe容器 */
+    .video-iframe-container {
+      width: 100%;
+      height: 100%;
+      display: none;
+    }
+    
+    .video-iframe-container iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    /* --- Footer --- */
+    footer {
+      background-color: #0b1a28;
+      color: #fff;
+      padding: 8rem 5%;
+      text-align: center;
+      position: relative;
+      z-index: 2;
+      margin-top: 4rem;
+    }
+    .footer-cta { font-size: clamp(2rem, 4vw, 4rem); font-weight: 700; margin-bottom: 2rem; }
+    .contact-info { color: #888; margin-bottom: 2rem; font-family: 'Courier New', monospace; }
+
+    /* ===== 手动轮播图样式 ===== */
+    .carousel-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .carousel-track {
+      display: flex;
+      height: 100%;
+      transition: transform 0.5s ease;
+    }
+
+    .carousel-slide {
+      flex: 0 0 100%;
+      height: 100%;
+      position: relative;
+    }
+
+    .carousel-slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    
+    /* Dimension Jump轮播图图片样式 - 完整显示 */
+    .dimension-jump-carousel .carousel-slide img {
+      object-fit: contain;
+      background-color: #f5f5f5;
+    }
+
+    /* 竖屏图片样式 */
+    .vertical-slide img {
+      object-fit: contain !important;
+      background-color: #f8f9fa;
+    }
+
+    .carousel-indicators {
+      position: absolute;
+      bottom: 15px;
+      left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      z-index: 10;
+    }
+
+    .indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.5);
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+    
+    .indicator:hover {
+      transform: scale(1.2);
+      background-color: rgba(255, 255, 255, 0.8);
+    }
+
+    .indicator.active {
+      background-color: var(--accent-color);
+      transform: scale(1.2);
+    }
+    
+    /* 轮播图导航箭头 */
+    .carousel-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 40px;
+      height: 40px;
+      background-color: rgba(0, 0, 0, 0.5);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      transition: background-color 0.3s ease;
+      z-index: 10;
+    }
+    
+    .carousel-nav:hover {
+      background-color: rgba(0, 0, 0, 0.8);
+    }
+    
+    .carousel-nav.prev {
+      left: 10px;
+    }
+    
+    .carousel-nav.next {
+      right: 10px;
+    }
+    
+    /* 在移动设备上隐藏导航箭头 */
+    @media (max-width: 768px) {
+      .carousel-nav {
+        display: none;
+      }
+    }
+
+    /* The Foliage部分的卡片样式 */
+    .foliage-card {
+      display: block;
+      cursor: pointer;
+      transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      background: #fff;
+      padding: 1rem;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+      border: 1px solid rgba(0,0,0,0.02);
+      text-align: center;
+      height: 100%;
+    }
+    
+    .foliage-card:hover { 
+      transform: translateY(-15px); 
+      box-shadow: 0 20px 50px rgba(0, 86, 179, 0.15); 
+    }
+    
+    .foliage-card-image-box {
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: #eee;
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+      border-radius: 8px;
+      position: relative;
+    }
+    
+    /* CVEU竖版图片容器 - 与dimensionjump相同 */
+    .foliage-vertical-image-box {
+      width: 100%;
+      aspect-ratio: 16/9; /* 保持横版比例 */
+      background: #f5f5f5;
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+      border-radius: 8px;
+      position: relative;
+    }
+    
+    .foliage-card-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center center; /* 确保图片中心显示 */
+      transition: transform 0.7s ease;
+    }
+    
+    /* CVEU竖版图片样式 - 与dimensionjump相同 */
+    .foliage-vertical-img {
+      object-fit: contain !important;
+      background-color: #f5f5f5;
+    }
+    
+    .foliage-card:hover .foliage-card-img {
+      transform: scale(1.05);
+    }
+    
+    .foliage-card:hover .foliage-vertical-img {
+      transform: none; /* 竖版图片不缩放 */
+    }
+    
+    .foliage-card-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #0b1a28;
+      margin-bottom: 0.5rem;
+      line-height: 1.4;
+    }
+    
+    .foliage-card-meta {
+      font-family: 'Courier New', monospace;
+      color: var(--accent-color);
+      font-size: 0.85rem;
+      margin-bottom: 0.2rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* 响应式调整 */
+    @media (max-width: 900px) {
+      .hero-layout { 
+        flex-direction: column;
+        gap: 1.5rem; 
+      }
+      .hero-photo-box {
+        max-width: 280px; /* 移动端更小 */
+      }
+      .slogan-container { display: inline-block; }
+      .list-item::before { display: none; }
+    }
+    
+    @media (max-width: 600px) {
+      .hero-photo-box {
+        max-width: 240px;
+      }
+      .name-container h1 {
+        font-size: clamp(2.5rem, 7vw, 4rem);
+      }
+      .chinese-name {
+        font-size: 1.2rem;
+      }
+      .slogan {
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- INTERACTIVE PARTICLE CANVAS -->
+  <canvas id="canvas-bg"></canvas>
+
+  <!-- GROWTH LINE SVG -->
+  <svg id="growth-svg" viewBox="0 0 100 1000" preserveAspectRatio="none">
+    <path class="trunk-path" d="M50,0 Q55,250 45,500 T50,1000" />
+  </svg>
+
+  <nav>
+    <div class="logo">HOU SHIQIN.</div>
+    <div>MENU</div>
+  </nav>
+
+  <!-- HERO SECTION - 照片在文字上方 -->
+  <header>
+    <div class="hero-layout fade-in-up">
+      <!-- 照片在上方 - 更新为更小的竖版3:4 -->
+      <div class="hero-photo-box">
+        <img src="images/personalphoto.png" 
+             onerror="this.src='https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80'" 
+             alt="Hou Shiqin的个人肖像" class="hero-photo">
+      </div>
+
+      <!-- 文字在下方 -->
+      <div class="hero-text">
+        <div class="name-container">
+          <h1>HOU SHIQIN</h1>
+          <span class="chinese-name">侯诗琴</span>
+        </div>
+        <!-- RESTORED TYPING SLOGAN -->
+        <div class="slogan-container">
+          <div class="slogan">"Classic Narrative Soul. Digital Creative Mind."</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- SECTION 1: THE ROOTS -->
+  <section class="container">
+    <span class="section-title">The Roots</span>
+
+    <div class="list-item fade-in-up">
+      <div class="item-left">
+        <div class="item-title">The Hong Kong University of Science and Technology</div>
+        <div class="item-desc">MA in Arts and Machine Creativity</div>
+      </div>
+      <div class="item-meta">2025 - Present</div>
+    </div>
+
+    <div class="list-item fade-in-up">
+      <div class="item-left">
+        <div class="item-title">The Central Academy of Drama</div>
+        <div class="item-desc">M.F.A. in Film Investment and Distribution</div>
+      </div>
+      <div class="item-meta">2021 - 2024</div>
+    </div>
+
+    <div class="list-item fade-in-up">
+      <div class="item-left">
+        <div class="item-title">The Central Academy of Drama</div>
+        <div class="item-desc">B.A. in Film Production Management</div>
+      </div>
+      <div class="item-meta">2017 - 2021</div>
+    </div>
+  </section>
+
+  <!-- SECTION 2: THE BRANCHES -->
+  <section class="container">
+    <span class="section-title">The Branches</span>
+
+    <!-- PART 01: THE ROOTS -->
+    <div class="works-grid">
+      <div class="work-category-header fade-in-up">
+        Part 01. The Roots
+        <span class="category-desc">Traditional Narrative</span>
+      </div>
+
+      <!-- Keychain 作品 - 手动轮播图（5张图片） -->
+      <div class="card fade-in-up">
+        <div class="card-image-box">
+          <div class="carousel-container" id="keychain-carousel">
+            <button class="carousel-nav prev">‹</button>
+            <button class="carousel-nav next">›</button>
+            <div class="carousel-track">
+              <!-- 第一张图片 -->
+              <div class="carousel-slide">
+                <img src="images/keychain_1.png" 
+                     onerror="this.src='https://images.unsplash.com/photo-1489599809516-9827b6d1cf13?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80'" 
+                     alt="Keychain作品截图1" class="card-img">
+              </div>
+              <!-- 第二张图片 -->
+              <div class="carousel-slide">
+                <img src="images/keychain_2.png" 
+                     onerror="this.src='https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?ixlib=rb-1.2.1&auto=format&fit=crop&w-600&q=80'" 
+                     alt="Keychain作品截图2" class="card-img">
+              </div>
+              <!-- 新增：第三张图片 -->
+              <div class="carousel-slide">
+                <img src="images/keychain_3.png" 
+                     onerror="this.src='https://images.unsplash.com/photo-1489599809516-9827b6d1cf13?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80'" 
+                     alt="Keychain作品截图3" class="card-img">
+              </div>
+              <!-- 新增：第四张图片 -->
+              <div class="carousel-slide">
+                <img src="images/keychain_4.png" 
+                     onerror="this.src='https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?ixlib=rb-1.2.1&auto=format&fit=crop&w-600&q=80'" 
+                     alt="Keychain作品截图4" class="card-img">
+              </div>
+              <!-- 新增：第五张图片 -->
+              <div class="carousel-slide">
+                <img src="images/keychain_5.png" 
+                     onerror="this.src='https://images.unsplash.com/photo-1489599809516-9827b6d1cf13?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80'" 
+                     alt="Keychain作品截图5" class="card-img">
+              </div>
+            </div>
+            <!-- 轮播指示点（5个） -->
+            <div class="carousel-indicators">
+              <span class="indicator active" data-slide="0"></span>
+              <span class="indicator" data-slide="1"></span>
+              <span class="indicator" data-slide="2"></span>
+              <span class="indicator" data-slide="3"></span>
+              <span class="indicator" data-slide="4"></span>
+            </div>
+          </div>
+        </div>
+        <div class="card-meta">Short Film | Producer</div>
+        <div class="card-title">Keychain</div>
+        <div class="card-desc">
+          Realistic observation of multi-child families. Using the keychain as the object connecting sibling emotions.
+        </div>
+      </div>
+
+      <!-- Saleswoman 作品 - 手动轮播图（4张图片） -->
+      <div class="card fade-in-up">
+        <div class="card-image-box">
+          <div class="carousel-container" id="saleswoman-carousel">
+            <button class="carousel-nav prev">‹</button>
+            <button class="carousel-nav next">›</button>
+            <div class="carousel-track">
+              <!-- 第一张图片 -->
+              <div class="carousel-slide">
+                <img src="images/saleswoman_1.jpeg" 
+                     onerror="this.src='https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80'" 
+                     alt="Saleswoman作品截图1" class="card-img">
+              </div>
+              <!-- 第二张图片 -->
+              <div class="carousel-slide">
+                <img src="images/saleswoman_2.jpeg" 
+                     onerror="this.src='https://images.unsplash.com/photo-1518676590629-3dcbd9c5a5c9?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80'" 
+                     alt="Saleswoman作品截图2" class="card-img">
+              </div>
+              <!-- 新增：第三张图片 -->
+              <div class="carousel-slide">
+                <img src="images/saleswoman_3.jpeg" 
+                     onerror="this.src='https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80'" 
+                     alt="Saleswoman作品截图3" class="card-img">
+              </div>
+              <!-- 新增：第四张图片 -->
+              <div class="carousel-slide">
+                <img src="images/saleswoman_4.jpeg" 
+                     onerror="this.src='https://images.unsplash.com/photo-1518676590629-3dcbd9c5a5c9?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80'" 
+                     alt="Saleswoman作品截图4" class="card-img">
+              </div>
+            </div>
+            <!-- 轮播指示点（4个） -->
+            <div class="carousel-indicators">
+              <span class="indicator active" data-slide="0"></span>
+              <span class="indicator" data-slide="1"></span>
+              <span class="indicator" data-slide="2"></span>
+              <span class="indicator" data-slide="3"></span>
+            </div>
+          </div>
+        </div>
+        <div class="card-meta">Feature Project | Screenwriter</div>
+        <div class="card-title">Saleswoman</div>
+        <div class="card-desc">
+          Focusing on social pain points. First-prize winning work demonstrating solid structural planning.
+        </div>
+      </div>
+    </div>
+
+    <!-- PART 02: THE FUTURE -->
+    <div class="works-grid" style="margin-top: 6rem;">
+      <div class="work-category-header fade-in-up">
+        Part 02. The Future
+        <span class="category-desc">AIGC & VR / Digital Aesthetics</span>
+      </div>
+
+      <!-- Love Letter - 竖屏视频带自定义封面和播放按钮 -->
+      <div class="card fade-in-up video-card" data-video-id="X4sdmBOjahk" data-is-vertical="true">
+        <div class="card-image-box">
+          <div class="vertical-video-container">
+            <!-- 使用你自己的封面图片 -->
+            <div class="vertical-video-cover">
+              <img src="images/love_letter_cover.jpg" 
+                   onerror="this.src='https://img.youtube.com/vi/X4sdmBOjahk/hqdefault.jpg'"
+                   alt="Love Letter封面" class="vertical-video-thumbnail">
+              <div class="vertical-play-button"></div> <!-- 添加播放按钮 -->
+            </div>
+            <!-- 视频iframe（初始隐藏） -->
+            <div class="video-iframe-container">
+              <iframe width="100%" height="100%" 
+                      src="" 
+                      title="Love Letter - AIGC Vertical Short" 
+                      frameborder="0" 
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                      allowfullscreen></iframe>
+            </div>
+          </div>
+        </div>
+        <div class="card-meta">AIGC Vertical Short</div>
+        <div class="card-title">Love Letter</div>
+        <div class="card-desc">Emotional exploration generated through AI, exploring digital romance boundaries.</div>
+      </div>
+
+      <!-- The Birthday - 横屏视频带YouTube封面 -->
+      <div class="card fade-in-up video-card" data-video-id="R9mmAMRNHRE">
+        <div class="card-image-box">
+          <!-- 视频封面 -->
+          <div class="video-cover-container">
+            <img src="https://img.youtube.com/vi/R9mmAMRNHRE/maxresdefault.jpg" 
+                 onerror="this.src='https://img.youtube.com/vi/R9mmAMRNHRE/hqdefault.jpg'"
+                 alt="The Birthday封面" class="video-thumbnail">
+            <div class="play-button"></div>
+          </div>
+          <!-- 视频iframe（初始隐藏） -->
+          <div class="video-iframe-container">
+            <iframe width="100%" height="100%" 
+                    src="" 
+                    title="The Birthday - AIGC Short Film" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen></iframe>
+          </div>
+        </div>
+        <div class="card-meta">AIGC Short Film</div>
+        <div class="card-title">The Birthday</div>
+        <div class="card-desc">Digital remembrance in parallel space-time. Breaking physical limits through monologues.</div>
+      </div>
+
+      <!-- The Meeting - 横屏视频带YouTube封面 -->
+      <div class="card fade-in-up video-card" data-video-id="NG_ZTAC3j1I">
+        <div class="card-image-box">
+          <!-- 视频封面 -->
+          <div class="video-cover-container">
+            <img src="https://img.youtube.com/vi/NG_ZTAC3j1I/maxresdefault.jpg" 
+                 onerror="this.src='https://img.youtube.com/vi/NG_ZTAC3j1I/hqdefault.jpg'"
+                 alt="The Meeting封面" class="video-thumbnail">
+            <div class="play-button"></div>
+          </div>
+          <!-- 视频iframe（初始隐藏） -->
+          <div class="video-iframe-container">
+            <iframe width="100%" height="100%" 
+                    src="" 
+                    title="The Meeting - AIGC Commercial" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen></iframe>
+          </div>
+        </div>
+        <div class="card-meta">AIGC Commercial</div>
+        <div class="card-title">The Meeting</div>
+        <div class="card-desc">Spirit fox and white horse. Empowering traditional auctions with digital resurrection.</div>
+      </div>
+
+      <!-- Dimension Jump - 手动轮播图，完整显示海报 -->
+      <div class="card fade-in-up dimension-jump-container">
+        <div class="card-image-box">
+          <div class="carousel-container dimension-jump-carousel" id="dimensionjump-carousel">
+            <button class="carousel-nav prev">‹</button>
+            <button class="carousel-nav next">›</button>
+            <div class="carousel-track">
+              <!-- 第一张图片 -->
+              <div class="carousel-slide">
+                <img src="images/dimension_jump_1.png" 
+                     onerror="this.src='https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80'" 
+                     alt="Dimension Jump VR体验截图1" class="card-img">
+              </div>
+              <!-- 第二张图片 -->
+              <div class="carousel-slide">
+                <img src="images/dimension_jump_2.png" 
+                     onerror="this.src='https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80'" 
+                     alt="Dimension Jump VR体验截图2" class="card-img">
+              </div>
+              <!-- 第三张图片 -->
+              <div class="carousel-slide">
+                <img src="images/dimension_jump_3.png" 
+                     onerror="this.src='https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80'" 
+                     alt="Dimension Jump VR体验截图3" class="card-img">
+              </div>
+            </div>
+            <!-- 轮播指示点 -->
+            <div class="carousel-indicators">
+              <span class="indicator active" data-slide="0"></span>
+              <span class="indicator" data-slide="1"></span>
+              <span class="indicator" data-slide="2"></span>
+            </div>
+          </div>
+        </div>
+        <div class="card-meta">VR Experience</div>
+        <div class="card-title">Dimension Jump</div>
+        <div class="card-desc">Breaking the fourth wall. Restructuring immersive experience "inside the screen, outside the world".</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 3: THE FOLIAGE -->
+  <section class="container">
+    <span class="section-title">The Foliage</span>
+    
+    <div class="works-grid">
+      <!-- 活动1: 顾小语的AI+ 'KEEP RUNNING, XR!' -->
+      <a href="https://www.cztv.com/newsDetail/840332" target="_blank" class="foliage-card fade-in-up">
+        <div class="foliage-card-image-box">
+          <!-- [需要添加图片] 请将图片保存为 images/activities/ai_xr_1.jpg -->
+          <img src="images/activities/ai_xr_1.jpg" 
+               onerror="this.src='https://images.unsplash.com/photo-1633356122544-f134324a6cee?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80'" 
+               alt="AI+XR交互体验封面" class="foliage-card-img">
+        </div>
+        <div class="foliage-card-meta">Interactive Experience | AI+XR</div>
+        <div class="foliage-card-title">Gu Xiaoyu's AI+ 'KEEP RUNNING, XR!'</div>
+        <div class="card-desc">Large-scale interactive experience making its Hong Kong debut.</div>
+      </a>
+
+      <!-- 活动2: CCE跨校区展览 -->
+      <a href="https://amc.hkust.edu.hk/news/exhibition-preview-2nd-cross-campus-exhibition" target="_blank" class="foliage-card fade-in-up">
+        <div class="foliage-card-image-box">
+          <!-- [需要添加图片] 请将图片保存为 images/activities/cce_exhibition_1.jpg -->
+          <img src="images/activities/cce_exhibition_1.jpg" 
+               onerror="this.src='https://images.unsplash.com/photo-1542744095-fcf48d80b0fd?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80'" 
+               alt="CCE展览封面" class="foliage-card-img">
+        </div>
+        <div class="foliage-card-meta">Exhibition | Cross-Campus</div>
+        <div class="foliage-card-title">CCE Exhibition Preview</div>
+        <div class="card-desc">Second cross-campus exhibition at HKUST.</div>
+      </a>
+
+      <!-- 活动3: CVEU项目 - 横版边框，完整显示竖版海报 -->
+      <a href="https://cveu.github.io/" target="_blank" class="foliage-card fade-in-up">
+        <div class="foliage-vertical-image-box">
+          <!-- [需要添加图片] 请将竖屏图片保存为 images/activities/cveu_project_1.jpg -->
+          <img src="images/activities/cveu_project_1.jpg" 
+               onerror="this.src='https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80'" 
+               alt="CVEU项目封面" class="foliage-card-img foliage-vertical-img">
+        </div>
+        <div class="foliage-card-meta">Project | Digital Platform</div>
+        <div class="foliage-card-title">CVEU Platform</div>
+        <div class="card-desc">The AI for Creative Visual Content Generation, Editing and Understanding (CVEU) returns for its 8th edition with three sessions: a course, an AIGC focused BoF and an Art Tech focused BoF that together explore the evolving dialogue between machine intelligence and human creativity.</div>
+      </a>
+
+      <!-- 活动4: 金宝街北戏剧公社演出 - 只放一张照片 -->
+      <a href="https://mp.weixin.qq.com/s/ZHt_59L2OHxUY_wvxOkt6Q" target="_blank" class="foliage-card fade-in-up">
+        <div class="foliage-card-image-box">
+          <!-- [需要添加图片] 请将图片保存为 images/activities/jinbao_theatre_1.jpg -->
+          <img src="images/activities/jinbao_theatre_1.jpg" 
+               onerror="this.src='https://images.unsplash.com/photo-1543002588-bfa74002ed7e?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80'" 
+               alt="金宝街北戏剧公社演出封面" class="foliage-card-img">
+        </div>
+        <div class="foliage-card-meta">Theatre | Performance</div>
+        <div class="foliage-card-title">Jinbao Street North Drama Commune 2020 New Year's Performance at Juyin Theatre</div>
+        <div class="card-desc">To support the further development of the drama community and to better spread theatrical culture among the residents of the neighborhood, and with the support of Jianguomen Subdistrict and Poly Jianguomen Public Cultural Operation Company, we have collaborated with Xuan Guoxian, a third-year student from the Directing Department of the Central Academy of Drama, to present the play "Romeo and Juliet" at the Juyin Theatre.</div>
+      </a>
+
+      <!-- 活动5: 第八届"瞬间辩论"专业辩论赛 - 只放一张照片 -->
+      <a href="https://mp.weixin.qq.com/s/tsGziYmT5bfT1_3H4zSOng" target="_blank" class="foliage-card fade-in-up">
+        <div class="foliage-card-image-box">
+          <!-- [需要添加图片] 请将图片保存为 images/activities/debate_8th_1.jpg -->
+          <img src="images/activities/debate_8th_1.jpg" 
+               onerror="this.src='https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80'" 
+               alt="第八届瞬间辩论赛封面" class="foliage-card-img">
+        </div>
+        <div class="foliage-card-meta">Debate Competition | Film & TV Dept.</div>
+        <div class="foliage-card-title">8th "Instantaneous Debate" Competition</div>
+        <div class="card-desc">Professional debate competition of the Film and Television Production Department, Central Academy of Drama.</div>
+      </a>
+
+      <!-- 活动6: 第七届电影电视系专业辩论赛 - 只放一张照片 -->
+      <a href="https://chntheatre.edu.cn/cn/xue/detail/12863.html" target="_blank" class="foliage-card fade-in-up">
+        <div class="foliage-card-image-box">
+          <!-- [需要添加图片] 请将图片保存为 images/activities/debate_7th_1.jpg -->
+          <img src="images/activities/debate_7th_1.jpg" 
+               onerror="this.src='https://images.unsplash.com/photo-1519681393784-d120267933ba?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80'" 
+               alt="第七届辩论赛封面" class="foliage-card-img">
+        </div>
+        <div class="foliage-card-meta">Debate Competition | Central Academy of Drama</div>
+        <div class="foliage-card-title">7th Film and Television Debate Competition</div>
+        <div class="card-desc">Professional debate competition at Central Academy of Drama.</div>
+      </a>
+
+      <!-- 活动7: "一带一路"国家电影教育国际联盟 - 只放一张照片 -->
+      <a href="https://mp.weixin.qq.com/s/hmixBJP17HqNyRq-ZPIyxQ" target="_blank" class="foliage-card fade-in-up">
+        <div class="foliage-card-image-box">
+          <!-- [需要添加图片] 请将图片保存为 images/activities/belt_road_1.jpg -->
+          <img src="images/activities/belt_road_1.jpg" 
+               onerror="this.src='https://images.unsplash.com/photo-1542204165-65bf26472b9b?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80'" 
+               alt="一带一路电影教育联盟封面" class="foliage-card-img">
+        </div>
+        <div class="foliage-card-meta">International Alliance | Education</div>
+        <div class="foliage-card-title">"Belt and Road" Film Education Alliance</div>
+        <div class="card-desc">In response to the initiative put forward by General Secretary of the CPC Central Committee to "strengthen international cooperation, jointly build the 'Belt and Road Initiative,' and achieve win-win development," and to promote film professional education and the social popularization of film culture in countries along the Belt and Road and other relevant countries, and to foster the development of young film talents from various countries, the "Belt and Road International Film Education Alliance," initiated and hosted by the Central Academy of Drama, was established on November 28th at our Changping campus.</div>
+      </a>
+
+      <!-- 活动8: 第二届全国播音主持专业教育研讨会 - 只放一张照片 -->
+      <a href="https://mp.weixin.qq.com/s/IAcfLICcQJSe8Pguzthm2w" target="_blank" class="foliage-card fade-in-up">
+        <div class="foliage-card-image-box">
+          <!-- [需要添加图片] 请将图片保存为 images/activities/broadcasting_1.jpg -->
+          <img src="images/activities/broadcasting_1.jpg" 
+               onerror="this.src='https://images.unsplash.com/photo-1542744095-fcf48d80b0fd?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80'" 
+               alt="播音主持教育研讨会封面" class="foliage-card-img">
+        </div>
+        <div class="foliage-card-meta">Symposium | Broadcasting & Hosting</div>
+        <div class="foliage-card-title">The Second National Symposium on Broadcasting and Hosting Professional Education</div>
+        <div class="card-desc">The "Second National Symposium on Broadcasting and Hosting Professional Education," organized by the Central Academy of Drama and hosted by its Department of Film and Television, was held from May 29th to 30th at the Changping campus of the Central Academy of Drama. The theme of this symposium was "New Perspectives on the Development of Hosting Art in the New Era of Integrated Media."</div>
+      </a>
+
+      <!-- 活动9: 纪念欧阳予倩诞辰130周年 | 欧阳予倩电影回顾展 - 只放一张照片 -->
+      <a href="https://mp.weixin.qq.com/s/kAagS2WBgF4-JjbirZdqlw" target="_blank" class="foliage-card fade-in-up">
+        <div class="foliage-card-image-box">
+          <!-- [需要添加图片] 请将图片保存为 images/activities/ouyang_1.jpg -->
+          <img src="images/activities/ouyang_1.jpg" 
+               onerror="this.src='https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80'" 
+               alt="欧阳予倩电影回顾展封面" class="foliage-card-img">
+        </div>
+        <div class="foliage-card-meta">Retrospective | Film History</div>
+        <div class="foliage-card-title">Commemorating the 130th Anniversary of Ouyang Yuqian's Birth | Ouyang Yuqian Film Retrospective</div>
+        <div class="card-desc">2019 marked the 130th anniversary of the birth of Ouyang Yuqian, a renowned Chinese playwright, drama educator, early film artist, dance theorist, and the first president of the Central Academy of Drama. To commemorate this rare artistic polymath in the history of modern Chinese art, the Central Academy of Drama held a series of commemorative events.</div>
+      </a>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-cta fade-in-up">Grow the Unimaginable.</div>
+    <div class="contact-info fade-in-up">hhhsq_888@163.com</div>
+  </footer>
+
+  <!-- INTERACTIVE PARTICLE SCRIPT -->
+  <script>
+    const canvas = document.getElementById('canvas-bg');
+    const ctx = canvas.getContext('2d');
+    let width, height;
+    let particles = [];
+    let ripples = [];
+
+    const particleCount = 60;
+    const attractDist = 800;
+    const repelDist = 150;
+
+    let mouse = { x: null, y: null };
+
+    window.addEventListener('mousemove', (e) => {
+      mouse.x = e.x;
+      mouse.y = e.y;
+    });
+
+    window.addEventListener('click', (e) => {
+      ripples.push(new Ripple(e.x, e.y));
+    });
+
+    window.addEventListener('mouseout', () => {
+      mouse.x = null;
+      mouse.y = null;
+    });
+
+    function resize() {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    class Ripple {
+      constructor(x, y) {
+        this.x = x; this.y = y; this.radius = 0;
+        this.maxRadius = Math.max(width, height) * 0.8;
+        this.speed = 8; this.life = 1.0;
+      }
+      update() { this.radius += this.speed; this.life -= 0.01; }
+    }
+
+    class Particle {
+      constructor() {
+        this.x = Math.random() * width;
+        this.y = Math.random() * height;
+        this.vx = (Math.random() - 0.5) * 0.5;
+        this.vy = (Math.random() * -0.8) - 0.2; // Upward flow
+        this.size = Math.random() * 2 + 1.5;
+        this.angle = Math.random() * Math.PI * 2;
+        this.pulseSpeed = 0.02 + Math.random()*0.02;
+        this.friction = 0.98;
+      }
+
+      update() {
+        // Mouse Interaction
+        if (mouse.x != null) {
+          let dx = mouse.x - this.x;
+          let dy = mouse.y - this.y;
+          let distance = Math.sqrt(dx*dx + dy*dy);
+
+          if (distance < repelDist) {
+            const force = (repelDist - distance) / repelDist;
+            this.vx -= (dx/distance) * force * 1.5;
+            this.vy -= (dy/distance) * force * 1.5;
+          } else if (distance < attractDist) {
+            this.vx += (dx/distance) * 0.02;
+            this.vy += (dy/distance) * 0.02;
+          }
+        }
+
+        // Ripple
+        for (let r of ripples) {
+          let dx = this.x - r.x;
+          let dy = this.y - r.y;
+          let dist = Math.sqrt(dx*dx + dy*dy);
+          if (Math.abs(dist - r.radius) < 50) {
+            this.vx += (dx/dist) * 0.5 * r.life;
+            this.vy += (dy/dist) * 0.5 * r.life;
+          }
+        }
+
+        this.x += this.vx;
+        this.y += this.vy;
+        this.vx *= this.friction;
+        this.vy *= this.friction;
+
+        if (this.vy > -0.2) this.vy -= 0.01; // Maintain upward drift
+
+        // Edge Wrap
+        if (this.x < -50) this.x = width + 50;
+        if (this.x > width + 50) this.x = -50;
+        if (this.y < -50) {
+          this.y = height + 50;
+          this.x = Math.random() * width;
+        }
+
+        this.angle += this.pulseSpeed;
+      }
+
+      draw() {
+        let active = false;
+        if (mouse.x != null) {
+          let dx = mouse.x - this.x;
+          let dy = mouse.y - this.y;
+          if (Math.sqrt(dx*dx + dy*dy) < 220) active = true;
+        }
+
+        ctx.beginPath();
+        const pulseFactor = 0.5;
+        let currentSize = this.size + (Math.sin(this.angle) * pulseFactor);
+        if (currentSize < 0.5) currentSize = 0.5;
+
+        const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, currentSize * 10);
+
+        if (active) {
+          gradient.addColorStop(0, 'rgba(173, 216, 230, 0.9)');
+          gradient.addColorStop(1, 'rgba(173, 216, 230, 0)');
+        } else {
+          const pulseAlpha = 0.6 + (Math.sin(this.angle) * 0.2);
+          gradient.addColorStop(0, `rgba(135, 206, 235, ${pulseAlpha})`);
+          gradient.addColorStop(1, 'rgba(176, 224, 230, 0)');
+        }
+
+        ctx.fillStyle = gradient;
+        ctx.arc(this.x, this.y, currentSize * 10, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    function init() {
+      particles = [];
+      for (let i = 0; i < particleCount; i++) { particles.push(new Particle()); }
+    }
+    function animate() {
+      ctx.clearRect(0, 0, width, height);
+      for (let i = ripples.length - 1; i >= 0; i--) {
+        ripples[i].update();
+        if (ripples[i].life <= 0) ripples.splice(i, 1);
+      }
+      for (let i = 0; i < particles.length; i++) {
+        particles[i].update();
+        particles[i].draw();
+      }
+      requestAnimationFrame(animate);
+    }
+    init();
+    animate();
+
+    // 滚动时SVG生长线的效果
+    window.addEventListener('scroll', () => {
+      const trunk = document.querySelector('.trunk-path');
+      const scrollPercent = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+      const drawLength = 1000 * scrollPercent;
+      trunk.style.strokeDasharray = `${drawLength + 200}, 2000`;
+    });
+
+    // 滚动动画观察器
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
+    });
+    document.querySelectorAll('.fade-in-up').forEach(el => observer.observe(el));
+
+    // 手动轮播图功能（只用于非The Foliage部分的轮播图）
+    function initManualCarousels() {
+      // 只选择非The Foliage部分的轮播图
+      const carousels = document.querySelectorAll('.card .carousel-container');
+      
+      carousels.forEach(carousel => {
+        const track = carousel.querySelector('.carousel-track');
+        const slides = carousel.querySelectorAll('.carousel-slide');
+        const indicators = carousel.querySelectorAll('.indicator');
+        const prevBtn = carousel.querySelector('.carousel-nav.prev');
+        const nextBtn = carousel.querySelector('.carousel-nav.next');
+        
+        let currentSlide = 0;
+        const totalSlides = slides.length;
+        
+        function updateCarousel() {
+          track.style.transform = `translateX(-${currentSlide * 100}%)`;
+          
+          indicators.forEach((indicator, index) => {
+            if (index === currentSlide) {
+              indicator.classList.add('active');
+            } else {
+              indicator.classList.remove('active');
+            }
+          });
+        }
+        
+        function nextSlide() {
+          currentSlide = (currentSlide + 1) % totalSlides;
+          updateCarousel();
+        }
+        
+        function prevSlide() {
+          currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+          updateCarousel();
+        }
+        
+        function goToSlide(index) {
+          currentSlide = index;
+          updateCarousel();
+        }
+        
+        if (prevBtn) {
+          prevBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // 防止事件冒泡到卡片
+            prevSlide();
+          });
+        }
+        
+        if (nextBtn) {
+          nextBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // 防止事件冒泡到卡片
+            nextSlide();
+          });
+        }
+        
+        indicators.forEach((indicator, index) => {
+          indicator.addEventListener('click', (e) => {
+            e.stopPropagation(); // 防止事件冒泡到卡片
+            goToSlide(index);
+          });
+        });
+        
+        // 添加触摸滑动支持
+        let startX = 0;
+        let endX = 0;
+        
+        carousel.addEventListener('touchstart', (e) => {
+          startX = e.touches[0].clientX;
+        });
+        
+        carousel.addEventListener('touchend', (e) => {
+          endX = e.changedTouches[0].clientX;
+          handleSwipe();
+        });
+        
+        carousel.addEventListener('mousedown', (e) => {
+          startX = e.clientX;
+          carousel.addEventListener('mouseup', handleMouseUp);
+          carousel.addEventListener('mouseleave', handleMouseUp);
+        });
+        
+        function handleMouseUp(e) {
+          endX = e.clientX;
+          handleSwipe();
+          carousel.removeEventListener('mouseup', handleMouseUp);
+          carousel.removeEventListener('mouseleave', handleMouseUp);
+        }
+        
+        function handleSwipe() {
+          const swipeThreshold = 50;
+          const diff = startX - endX;
+          
+          if (Math.abs(diff) > swipeThreshold) {
+            if (diff > 0) {
+              nextSlide();
+            } else {
+              prevSlide();
+            }
+          }
+        }
+        
+        updateCarousel();
+      });
+    }
+    
+    // 视频封面点击播放功能
+    function initVideoPlayers() {
+      const videoCards = document.querySelectorAll('.video-card');
+      
+      videoCards.forEach(card => {
+        const videoId = card.getAttribute('data-video-id');
+        const isVertical = card.getAttribute('data-is-vertical') === 'true';
+        
+        // 根据视频类型选择正确的元素
+        let coverContainer, iframeContainer;
+        
+        if (isVertical) {
+          coverContainer = card.querySelector('.vertical-video-cover');
+          iframeContainer = card.querySelector('.video-iframe-container');
+        } else {
+          coverContainer = card.querySelector('.video-cover-container');
+          iframeContainer = card.querySelector('.video-iframe-container');
+        }
+        
+        if (coverContainer && iframeContainer) {
+          coverContainer.addEventListener('click', function() {
+            // 隐藏封面
+            this.style.display = 'none';
+            
+            // 显示iframe容器
+            iframeContainer.style.display = 'block';
+            
+            // 获取iframe并设置src（自动播放）
+            const iframe = iframeContainer.querySelector('iframe');
+            iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`;
+          });
+        }
+      });
+    }
+    
+    // 初始化所有功能
+    document.addEventListener('DOMContentLoaded', function() {
+      initManualCarousels();
+      initVideoPlayers();
+    });
+  </script>
+</body>
+</html>
