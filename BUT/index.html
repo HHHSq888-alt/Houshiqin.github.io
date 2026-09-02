@@ -291,6 +291,51 @@
   .main::-webkit-scrollbar-track,.sidebar::-webkit-scrollbar-track{background:transparent;}
   .main::-webkit-scrollbar-thumb,.sidebar::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
   .main::-webkit-scrollbar-thumb:hover,.sidebar::-webkit-scrollbar-thumb:hover{background:var(--text-4);}
+
+  /* ============ REPLAY BAR ============ */
+  .replay-bar{display:none;align-items:center;gap:14px;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:12px 18px;box-shadow:var(--shadow-sm);margin-top:14px;}
+  .replay-bar.show{display:flex;}
+  .replay-bar .rb-dot{width:9px;height:9px;border-radius:50%;background:var(--teal);box-shadow:0 0 0 4px var(--teal-soft);animation:pulse 1.4s ease-in-out infinite;flex-shrink:0;}
+  .replay-bar .rb-label{font-size:12px;font-weight:700;color:var(--text);font-family:var(--font-mono);letter-spacing:.4px;min-width:150px;}
+  .replay-bar .rb-tc{font-size:13px;font-weight:800;color:var(--teal);font-family:var(--font-mono);flex-shrink:0;}
+  .replay-bar .rb-fill{flex:1;height:6px;border-radius:3px;background:var(--bg-soft);overflow:hidden;min-width:40px;}
+  .replay-bar .rb-fill-i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--teal),var(--amber));transition:width .5s ease;}
+
+  /* Replay states */
+  .track-node.lit .dot{background:var(--teal);color:#fff;box-shadow:0 0 0 6px var(--teal-soft);}
+  .level-card.replay-lit{transform:translateY(-3px);box-shadow:0 0 0 2px var(--teal-soft),var(--shadow-md);border-color:var(--teal);}
+
+  /* Focus visibility for interactive */
+  .level-card:focus-visible,.btn:focus-visible,a.sw:focus-visible{outline:2px solid var(--teal);outline-offset:2px;}
+  .btn[aria-disabled="true"]{opacity:.55;pointer-events:none;}
+
+  /* ============ MODAL ============ */
+  .modal-overlay{position:fixed;inset:0;background:rgba(15,27,45,.45);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;z-index:100;padding:24px;animation:fade .2s ease;}
+  .modal-overlay[hidden]{display:none;}
+  .modal{background:var(--panel);border:1px solid var(--border);border-radius:18px;width:min(460px,100%);max-height:88vh;overflow:hidden;box-shadow:var(--shadow-lg);animation:rise .25s ease;position:relative;}
+  .modal-scene{height:150px;background:#0F1B2D;position:relative;overflow:hidden;}
+  .modal-scene svg{width:100%;height:100%;display:block;}
+  .modal-close{position:absolute;top:12px;right:12px;width:32px;height:32px;border-radius:8px;background:rgba(15,27,45,.55);color:#fff;border:none;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;z-index:3;transition:background .15s;}
+  .modal-close:hover{background:rgba(15,27,45,.8);}
+  .modal-close:focus-visible{outline:2px solid var(--teal);outline-offset:2px;}
+  .modal-body{padding:20px 24px 24px;}
+  .m-tag{display:inline-block;font-size:9px;font-weight:700;padding:3px 8px;border-radius:5px;font-family:var(--font-mono);letter-spacing:.4px;margin-bottom:8px;}
+  .m-tag.work{background:var(--teal-soft);color:var(--teal);}
+  .m-tag.life{background:var(--amber-soft);color:var(--amber);}
+  .m-tag.add{background:#F1F5F9;color:var(--text-3);}
+  .modal-body h2{font-size:20px;font-weight:700;margin-bottom:2px;letter-spacing:-.2px;}
+  .m-en{font-size:9.5px;color:var(--text-3);font-family:var(--font-mono);letter-spacing:.5px;text-transform:uppercase;margin-bottom:14px;}
+  .m-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-top:1px solid var(--border-soft);font-size:12.5px;}
+  .m-row .m-k{color:var(--text-3);font-family:var(--font-mono);font-size:10px;letter-spacing:.6px;text-transform:uppercase;}
+  .m-row .m-v{font-weight:700;color:var(--text);font-family:var(--font-mono);text-align:right;max-width:62%;}
+  .m-desc{margin-top:14px;font-size:12.5px;line-height:1.65;color:var(--text-2);}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  @keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+  @media (prefers-reduced-motion: reduce){
+    .replay-bar .rb-fill-i{transition:none;}
+    .modal-overlay,.modal{animation:none;}
+    .track-node.current .dot,.status-pill .dot,.hero .avatar::after,.subj-card .id .rec-dot,.plant-info .status .dot{animation:none;}
+  }
 </style>
 </head>
 <body>
@@ -333,7 +378,7 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         New space
       </div>
-      <div class="btn primary">
+      <div class="btn primary" id="restartBtn" role="button" tabindex="0" aria-label="重新播放本次回放">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
         [ Restart ] 重新播放
       </div>
@@ -411,6 +456,14 @@
             <div class="track-node locked"><div class="dot">+</div><div class="label">新增</div></div>
           </div>
         </div>
+      </div>
+
+      <!-- REPLAY BAR -->
+      <div class="replay-bar" id="replayBar">
+        <span class="rb-dot"></span>
+        <span class="rb-label" id="rbLabel">REPLAY · —</span>
+        <span class="rb-tc" id="rbTc">—</span>
+        <span class="rb-fill"><span class="rb-fill-i" id="rbFill"></span></span>
       </div>
 
       <!-- 8 LEVELS -->
@@ -824,6 +877,128 @@
 
     </div>
   </main>
+
+  <!-- =================== ARCHIVE MODAL =================== -->
+  <div class="modal-overlay" id="modal" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+      <div class="modal-scene" id="mScene"></div>
+      <button class="modal-close" id="modalClose" aria-label="关闭">✕</button>
+      <div class="modal-body">
+        <span class="m-tag" id="mTag">WORK</span>
+        <h2 id="mTitle">便利店</h2>
+        <div class="m-en" id="mEn">CONVENIENCE</div>
+        <div class="m-row"><span class="m-k">Timecode</span><span class="m-v" id="mTc">07:42</span></div>
+        <div class="m-row"><span class="m-k">Replay count</span><span class="m-v" id="mRp">×12</span></div>
+        <div class="m-row"><span class="m-k">系统记录</span><span class="m-v" id="mSys">—</span></div>
+        <p class="m-desc" id="mDesc">—</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  (function(){
+    'use strict';
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var DATA = [
+      {name:'便利店', en:'CONVENIENCE', tag:'WORK', tc:'07:42', rp:'×12', sys:'晨间通勤 · 购买带走', desc:'清晨便利店。你拿下热咖啡和饭团，店员装袋，你拎着走——标准打工人最不起眼的开场。'},
+      {name:'卧室', en:'BEDROOM', tag:'WORK', tc:'08:15', rp:'×9', sys:'护肤弹窗 · 系统替你选「是」', desc:'卧室镜前。系统弹出护肤流程，替你点了「是」，你没操作。仪容被自动整理好。'},
+      {name:'餐厅', en:'DINING', tag:'WORK', tc:'12:30', rp:'×10', sys:'标准套餐 · 重复', desc:'午休餐厅。你点了和昨天一模一样的午饭——系统记录为「无偏差」。'},
+      {name:'楼梯喂猫', en:'STAIRS · CAT', tag:'LIFE', tc:'19:05', rp:'×58', sys:'非标准行为 · 滞留 11 分钟', desc:'下班楼梯。你停下去喂一只猫，多待了 11 分钟。这是全片最接近「你」的瞬间，也是 replay 次数第二高的片段。'},
+      {name:'红色地铁', en:'RED SUBWAY · 被寻找', tag:'WORK', tc:'18:20', rp:'×21', sys:'人群定位 · 被寻找', desc:'晚高峰红地铁。你在红色车厢里被系统标记为「待寻回」——通勤变成一场被追踪的搜索。'},
+      {name:'天台', en:'ROOFTOP · 生日 / 心上人', tag:'LIFE', tc:'22:10', rp:'×63', sys:'离轨 · 天台夜开', desc:'深夜天台。紫茉莉夜开，你把它递给心上人。这是 replay 次数最多的片段——但仅存在于 sim，现实中你从未上天台。'},
+      {name:'地铁等车', en:'COMMUTE · FORCE EXIT', tag:'WORK', tc:'23:18', rp:'×3', sys:'强制终止 · FORCE EXIT', desc:'末班地铁等车。你卡在站台，系统刷了三轮强制退出——「标准」最后的挣扎。'},
+      {name:'新增空间', en:'NEW SPACE', tag:'+', tc:'—', rp:'—', sys:'空间未生成', desc:'没有第九关。标准之外，系统不提供任何空间。新增，只是又一个空位的占位。'}
+    ];
+
+    var grid = document.querySelector('.level-grid');
+    var cards = grid ? Array.prototype.slice.call(grid.querySelectorAll('.level-card')) : [];
+    var track = document.querySelector('.progress-track .track');
+    var nodes = track ? Array.prototype.slice.call(track.querySelectorAll('.track-node')) : [];
+    var restartBtn = document.getElementById('restartBtn');
+    var replayBar = document.getElementById('replayBar');
+    var rbLabel = document.getElementById('rbLabel');
+    var rbTc = document.getElementById('rbTc');
+    var rbFill = document.getElementById('rbFill');
+    var modal = document.getElementById('modal');
+    var modalClose = document.getElementById('modalClose');
+    var mScene = document.getElementById('mScene'), mTag = document.getElementById('mTag'),
+        mTitle = document.getElementById('mTitle'), mEn = document.getElementById('mEn'),
+        mTc = document.getElementById('mTc'), mRp = document.getElementById('mRp'),
+        mSys = document.getElementById('mSys'), mDesc = document.getElementById('mDesc');
+    var replaying = false, lastFocus = null;
+
+    cards.forEach(function(c, i){
+      c.dataset.idx = i;
+      c.setAttribute('role', 'button');
+      c.setAttribute('tabindex', '0');
+      c.setAttribute('aria-label', DATA[i].name + ' 回放详情');
+    });
+
+    function openModal(card){
+      var i = +card.dataset.idx, d = DATA[i];
+      mTag.textContent = d.tag;
+      mTag.className = 'm-tag ' + (d.tag === 'LIFE' ? 'life' : (d.tag === 'WORK' ? 'work' : 'add'));
+      mTitle.textContent = d.name;
+      mEn.textContent = d.en;
+      mTc.textContent = d.tc;
+      mRp.textContent = d.rp;
+      mSys.textContent = d.sys;
+      mDesc.textContent = d.desc;
+      mScene.innerHTML = card.querySelector('.scene').innerHTML;
+      lastFocus = card;
+      modal.hidden = false;
+      modalClose.focus();
+    }
+    function closeModal(){ modal.hidden = true; if (lastFocus) lastFocus.focus(); }
+
+    cards.forEach(function(c){
+      c.addEventListener('click', function(){ openModal(c); });
+      c.addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openModal(c); } });
+    });
+
+    modalClose.addEventListener('click', closeModal);
+    modal.addEventListener('click', function(e){ if (e.target === modal) closeModal(); });
+    document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && !modal.hidden) closeModal(); });
+
+    function runReplay(){
+      if (replaying) return;
+      replaying = true;
+      restartBtn.setAttribute('aria-disabled', 'true');
+      replayBar.classList.add('show');
+      nodes.forEach(function(n){ n.classList.remove('lit'); });
+      cards.forEach(function(c){ c.classList.remove('replay-lit'); });
+      rbFill.style.width = '0%';
+      var N = DATA.length, i = 0;
+      (function step(){
+        if (i >= N){
+          rbLabel.textContent = 'REPLAY COMPLETE · 回放结束';
+          rbTc.textContent = '—';
+          rbFill.style.width = '100%';
+          setTimeout(function(){
+            nodes.forEach(function(n){ n.classList.remove('lit'); });
+            cards.forEach(function(c){ c.classList.remove('replay-lit'); });
+            replayBar.classList.remove('show');
+            restartBtn.setAttribute('aria-disabled', 'false');
+            replaying = false;
+          }, reduce ? 400 : 1300);
+          return;
+        }
+        var d = DATA[i];
+        if (nodes[i]) nodes[i].classList.add('lit');
+        if (cards[i]) cards[i].classList.add('replay-lit');
+        rbLabel.textContent = 'REPLAY · ' + d.name;
+        rbTc.textContent = d.tc;
+        rbFill.style.width = ((i + 1) / N * 100) + '%';
+        i++;
+        setTimeout(step, reduce ? 90 : 620);
+      })();
+    }
+    if (restartBtn){
+      restartBtn.addEventListener('click', runReplay);
+      restartBtn.addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); runReplay(); } });
+    }
+  })();
+  </script>
 
 </body>
 </html>
