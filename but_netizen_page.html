@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BUT · 同温层 / Shared Layer</title>
+<style>
+  :root{
+    --bg-deep:#0A0F14;
+    --bg-panel:#0F1720;
+    --bg-elev:#16212C;
+    --bg-elev2:#1C2A37;
+    --border:#27343F;
+    --border-soft:#1E2932;
+    --text:#E6EDF3;
+    --text-dim:#7C8C9A;
+    --text-faint:#56656F;
+    --teal:#35B0A6;      /* work levels */
+    --teal-dim:#1C635C;
+    --amber:#E0A53A;     /* life levels */
+    --amber-dim:#8A6320;
+    --red:#E5484D;       /* force / system violence */
+    --blue:#3B6EA5;      /* office */
+    --green:#3FB950;     /* restart */
+    --mono:'SF Mono','JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
+    --sans:-apple-system,'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{
+    background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(53,176,166,.06), transparent 60%),
+      radial-gradient(900px 500px at 0% 110%, rgba(224,165,58,.05), transparent 60%),
+      var(--bg-deep);
+    font-family:var(--sans);
+    color:var(--text);
+    display:flex; align-items:center; justify-content:center;
+    padding:32px 18px;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* ===== Game window chrome ===== */
+  .but-window{
+    width:min(1180px,100%);
+    background:var(--bg-panel);
+    border:1px solid var(--border);
+    border-radius:14px;
+    overflow:hidden;
+    box-shadow:0 30px 80px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.02) inset;
+  }
+  .titlebar{
+    height:42px; display:flex; align-items:center; gap:12px;
+    padding:0 14px;
+    background:linear-gradient(180deg,#13202B,#0E1820);
+    border-bottom:1px solid var(--border);
+  }
+  .traffic{display:flex; gap:7px;}
+  .traffic i{width:11px;height:11px;border-radius:50%;display:block;}
+  .traffic .r{background:#E5484D;}
+  .traffic .y{background:#E0A53A;}
+  .traffic .g{background:#3FB950;}
+  .titlebar .t-title{
+    font-family:var(--mono); font-size:12px; color:var(--text-dim);
+    letter-spacing:.4px;
+  }
+  .titlebar .t-title b{color:var(--text);font-weight:600;}
+  .titlebar .spacer{flex:1;}
+  .titlebar .t-sync{
+    font-family:var(--mono); font-size:11px; color:var(--teal);
+    display:flex; align-items:center; gap:6px;
+  }
+  .titlebar .t-sync .dot{width:6px;height:6px;border-radius:50%;background:var(--teal);box-shadow:0 0 7px var(--teal);}
+
+  /* ===== Body layout ===== */
+  .body{display:flex; min-height:640px;}
+  .sidebar{
+    width:208px; flex:0 0 208px;
+    background:var(--bg-deep);
+    border-right:1px solid var(--border);
+    padding:18px 12px;
+    display:flex; flex-direction:column; gap:6px;
+  }
+  .brand{display:flex; align-items:center; gap:10px; padding:4px 8px 16px;}
+  .logo{
+    width:34px;height:34px;border-radius:9px;background:#0B1116;border:1px solid #2A3744;
+    display:flex;align-items:center;justify-content:center;position:relative;flex:0 0 auto;
+  }
+  .logo b{font-family:var(--sans);font-weight:800;font-size:12px;letter-spacing:.5px;color:#E6EDF3;}
+  .logo::after{content:'';position:absolute;top:4px;right:4px;width:6px;height:6px;border-radius:50%;background:var(--red);box-shadow:0 0 6px var(--red);}
+  .brand .b-txt{line-height:1.25;}
+  .brand .b-txt .zh{font-size:12.5px;font-weight:600;color:var(--text);}
+  .brand .b-txt .en{font-family:var(--mono);font-size:9.5px;color:var(--text-faint);letter-spacing:.3px;}
+
+  .nav-label{font-family:var(--mono);font-size:9.5px;color:var(--text-faint);letter-spacing:1.2px;padding:10px 8px 4px;}
+  .nav-item{
+    display:flex;align-items:center;gap:10px;
+    padding:9px 10px;border-radius:8px;cursor:default;
+    font-size:13px;color:var(--text-dim);
+    border:1px solid transparent;
+  }
+  .nav-item .ic{width:16px;height:16px;border-radius:4px;background:var(--bg-elev2);flex:0 0 auto;}
+  .nav-item:hover{background:var(--bg-elev);color:var(--text);}
+  .nav-item.active{
+    background:rgba(53,176,166,.10);color:var(--text);
+    border-color:rgba(53,176,166,.35);
+  }
+  .nav-item.active .ic{background:var(--teal);}
+  .sidebar .sb-foot{margin-top:auto;padding:10px 8px 2px;border-top:1px solid var(--border-soft);}
+  .sb-foot .subj{font-family:var(--mono);font-size:10.5px;color:var(--text-dim);}
+  .sb-foot .subj b{color:var(--teal);}
+  .sb-foot .active-n{font-family:var(--mono);font-size:9.5px;color:var(--text-faint);margin-top:3px;}
+
+  /* ===== Main: Netizen page ===== */
+  .main{flex:1; padding:22px 26px 30px; overflow:auto;}
+  .page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:6px;}
+  .page-head .ph-zh{font-size:22px;font-weight:700;letter-spacing:1px;}
+  .page-head .ph-en{font-family:var(--mono);font-size:11px;color:var(--text-dim);letter-spacing:1px;margin-top:3px;}
+  .page-head .ph-tag{
+    font-family:var(--mono);font-size:10.5px;color:var(--text-faint);
+    border:1px solid var(--border);border-radius:20px;padding:5px 12px;white-space:nowrap;
+  }
+  .page-sub{font-size:12.5px;color:var(--text-dim);margin:8px 0 20px;line-height:1.6;}
+  .page-sub b{color:var(--amber);font-weight:600;}
+
+  /* Global trending */
+  .trending{
+    background:linear-gradient(180deg,var(--bg-elev),var(--bg-panel));
+    border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:24px;
+  }
+  .trending .tr-head{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+  .trending .tr-head .tr-t{font-size:13px;font-weight:600;}
+  .trending .tr-head .tr-en{font-family:var(--mono);font-size:9.5px;color:var(--text-faint);letter-spacing:.6px;}
+  .trending .tr-head .tr-n{margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--text-dim);}
+  .tr-row{display:flex;align-items:center;gap:14px;padding:9px 0;border-top:1px solid var(--border-soft);}
+  .tr-row:first-of-type{border-top:none;}
+  .tr-rank{font-family:var(--mono);font-size:13px;color:var(--text-faint);width:22px;flex:0 0 auto;}
+  .tr-rank.top{color:var(--amber);}
+  .tr-chip{width:30px;height:30px;border-radius:7px;flex:0 0 auto;border:1px solid var(--border);}
+  .tr-name{font-size:12.5px;min-width:118px;}
+  .tr-name .en{font-family:var(--mono);font-size:9px;color:var(--text-faint);display:block;letter-spacing:.4px;}
+  .tr-bar{flex:1;height:8px;background:var(--bg-deep);border-radius:6px;overflow:hidden;border:1px solid var(--border-soft);}
+  .tr-bar i{display:block;height:100%;border-radius:6px;}
+  .tr-val{font-family:var(--mono);font-size:12px;width:74px;text-align:right;flex:0 0 auto;}
+
+  /* Feed */
+  .feed-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+  .feed-head .fh-t{font-size:14px;font-weight:600;}
+  .feed-head .fh-en{font-family:var(--mono);font-size:9.5px;color:var(--text-faint);letter-spacing:.6px;}
+  .feed-head .fh-filter{display:flex;gap:6px;}
+  .chip{
+    font-family:var(--mono);font-size:10px;color:var(--text-dim);
+    border:1px solid var(--border);border-radius:16px;padding:5px 11px;cursor:default;
+  }
+  .chip.on{background:rgba(53,176,166,.12);border-color:rgba(53,176,166,.4);color:var(--text);}
+
+  .feed{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+  .card{
+    background:var(--bg-elev);border:1px solid var(--border);border-radius:12px;
+    padding:14px;display:flex;flex-direction:column;gap:12px;
+    transition:border-color .18s ease, transform .18s ease;
+  }
+  .card:hover{border-color:rgba(53,176,166,.4);transform:translateY(-2px);}
+  .card .c-head{display:flex;align-items:center;justify-content:space-between;}
+  .card .c-id{font-family:var(--mono);font-size:15px;font-weight:600;color:var(--text);}
+  .card .c-id .hash{color:var(--teal);}
+  .card .c-last{font-family:var(--mono);font-size:9.5px;color:var(--red);letter-spacing:.3px;}
+  .card .c-last.ok{color:var(--text-faint);}
+
+  .thumb{height:96px;border-radius:9px;border:1px solid var(--border);position:relative;overflow:hidden;display:flex;align-items:flex-end;padding:9px;}
+  .thumb .t-tag{font-family:var(--mono);font-size:9px;color:#fff;background:rgba(0,0,0,.45);padding:3px 7px;border-radius:5px;backdrop-filter:blur(2px);}
+  /* scene gradients */
+  .sc-rooftop{background:linear-gradient(160deg,#0b1b3a,#1b2f5e 60%,#2a3f6e);}
+  .sc-stairs{background:linear-gradient(160deg,#2a2017,#4a3a23 60%,#6b5430);}
+  .sc-redsub{background:linear-gradient(160deg,#2a0d0d,#5e1717 55%,#8a2020);}
+  .sc-store{background:linear-gradient(160deg,#0c1620,#16283a 60%,#22364a);}
+  .sc-bedroom{background:linear-gradient(160deg,#161a26,#262c40 60%,#343c56);}
+  .sc-dine{background:linear-gradient(160deg,#1a1410,#33271b 60%,#4a3a28);}
+  .sc-commute{background:linear-gradient(160deg,#101820,#1c2a38 60%,#2c3e52);}
+
+  .c-stats{display:flex;gap:10px;}
+  .c-stat{flex:1;background:var(--bg-deep);border:1px solid var(--border-soft);border-radius:8px;padding:8px 10px;}
+  .c-stat .v{font-family:var(--mono);font-size:15px;font-weight:600;color:var(--text);}
+  .c-stat .v.amber{color:var(--amber);}
+  .c-stat .l{font-size:9.5px;color:var(--text-faint);margin-top:2px;letter-spacing:.3px;}
+
+  .levels{display:flex;gap:5px;}
+  .lv{flex:1;aspect-ratio:1;border-radius:5px;border:1px solid var(--border-soft);position:relative;display:flex;align-items:center;justify-content:center;}
+  .lv.work{background:rgba(53,176,166,.10);border-color:rgba(53,176,166,.3);}
+  .lv.life{background:rgba(224,165,58,.10);border-color:rgba(224,165,58,.3);}
+  .lv .n{font-family:var(--mono);font-size:7.5px;color:var(--text-faint);position:absolute;bottom:2px;right:3px;}
+  .lv .sym{font-size:11px;line-height:1;}
+  .lv.work .sym{color:var(--teal);}
+  .lv.life .sym{color:var(--amber);}
+  .lv.peak{border-color:var(--amber);box-shadow:0 0 0 1px var(--amber) inset;}
+
+  .follow{
+    font-family:var(--mono);font-size:10.5px;color:var(--text-dim);
+    background:var(--bg-deep);border:1px solid var(--border);border-radius:8px;
+    padding:8px;text-align:center;cursor:default;letter-spacing:.4px;
+    transition:all .15s ease;
+  }
+  .follow:hover{color:var(--text);border-color:var(--teal);}
+
+  .foot-note{
+    margin-top:26px;padding-top:14px;border-top:1px solid var(--border-soft);
+    font-family:var(--mono);font-size:9.5px;color:var(--text-faint);line-height:1.7;letter-spacing:.2px;
+  }
+  .foot-note b{color:var(--text-dim);font-weight:500;}
+</style>
+</head>
+<body>
+  <div class="but-window">
+    <!-- Title bar -->
+    <div class="titlebar">
+      <div class="traffic"><i class="r"></i><i class="y"></i><i class="g"></i></div>
+      <div class="t-title"><b>BUT</b> · Standard Life Simulator &nbsp;—&nbsp; Shared Layer</div>
+      <div class="spacer"></div>
+      <div class="t-sync"><span class="dot"></span>SESSION SYNC 100%</div>
+    </div>
+
+    <div class="body">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="logo"><b>BUT</b></div>
+          <div class="b-txt">
+            <div class="zh">在册人生模拟器</div>
+            <div class="en">ON-RECORD LIFE SIMULATOR</div>
+          </div>
+        </div>
+
+        <div class="nav-label">SIMULATION</div>
+        <div class="nav-item"><span class="ic"></span>关卡选择 Level</div>
+        <div class="nav-item active"><span class="ic"></span>同温层 Netizen</div>
+        <div class="nav-item"><span class="ic"></span>我的回放 Mine</div>
+        <div class="nav-item"><span class="ic"></span>新增空间 New+</div>
+
+        <div class="nav-label">SYSTEM</div>
+        <div class="nav-item"><span class="ic"></span>设置 Settings</div>
+        <div class="nav-item"><span class="ic"></span>关于 About</div>
+
+        <div class="sb-foot">
+          <div class="subj">RECORDED SUBJECT <b>#2125</b></div>
+          <div class="active-n">ACTIVE SUBJECTS 4,821</div>
+        </div>
+      </aside>
+
+      <!-- Main -->
+      <main class="main">
+        <div class="page-head">
+          <div>
+            <div class="ph-zh">同温层</div>
+            <div class="ph-en">SHARED LAYER · BROWSE OTHER RECORDED SUBJECTS</div>
+          </div>
+          <div class="ph-tag">你不是唯一一个 · YOU ARE NOT THE ONLY ONE</div>
+        </div>
+        <div class="page-sub">
+          浏览其他被记录对象的生活片段回放。所有 subject 共享同一套八关模板——<b>区别只在重播次数</b>。
+        </div>
+
+        <!-- Global trending -->
+        <section class="trending">
+          <div class="tr-head">
+            <div class="tr-t">全球最热片段</div>
+            <div class="tr-en">GLOBAL TRENDING FRAGMENT · 4,821 SUBJECTS</div>
+            <div class="tr-n">avg replay / subject</div>
+          </div>
+
+          <div class="tr-row">
+            <div class="tr-rank top">01</div>
+            <div class="tr-chip sc-rooftop"></div>
+            <div class="tr-name">天台<span class="en">ROOFTOP · 生日 / 心上人</span></div>
+            <div class="tr-bar"><i style="width:100%;background:linear-gradient(90deg,var(--amber-dim),var(--amber));"></i></div>
+            <div class="tr-val" style="color:var(--amber)">×63</div>
+          </div>
+          <div class="tr-row">
+            <div class="tr-rank top">02</div>
+            <div class="tr-chip sc-stairs"></div>
+            <div class="tr-name">楼梯喂猫<span class="en">STAIRS · CAT</span></div>
+            <div class="tr-bar"><i style="width:92%;background:linear-gradient(90deg,var(--amber-dim),var(--amber));"></i></div>
+            <div class="tr-val" style="color:var(--amber)">×58</div>
+          </div>
+          <div class="tr-row">
+            <div class="tr-rank">03</div>
+            <div class="tr-chip sc-redsub"></div>
+            <div class="tr-name">红色地铁<span class="en">RED SUBWAY · 被寻找</span></div>
+            <div class="tr-bar"><i style="width:33%;background:linear-gradient(90deg,var(--teal-dim),var(--teal));"></i></div>
+            <div class="tr-val">×21</div>
+          </div>
+          <div class="tr-row">
+            <div class="tr-rank">04</div>
+            <div class="tr-chip sc-store"></div>
+            <div class="tr-name">便利店<span class="en">CONVENIENCE</span></div>
+            <div class="tr-bar"><i style="width:18%;background:linear-gradient(90deg,var(--teal-dim),var(--teal));"></i></div>
+            <div class="tr-val">×12</div>
+          </div>
+          <div class="tr-row">
+            <div class="tr-rank">05</div>
+            <div class="tr-chip sc-commute"></div>
+            <div class="tr-name">地铁等车<span class="en">COMMUTE · FORCE EXIT</span></div>
+            <div class="tr-bar"><i style="width:5%;background:linear-gradient(90deg,#7a2226,var(--red));"></i></div>
+            <div class="tr-val" style="color:var(--red)">×3</div>
+          </div>
+        </section>
+
+        <!-- Feed -->
+        <div class="feed-head">
+          <div>
+            <div class="fh-t">其他被记录对象</div>
+            <div class="fh-en">OTHER SUBJECTS · SORTED BY TOTAL REPLAYS</div>
+          </div>
+          <div class="fh-filter">
+            <span class="chip on">总回放</span>
+            <span class="chip">最偏爱</span>
+            <span class="chip">最近在线</span>
+          </div>
+        </div>
+
+        <div class="feed">
+          <!-- Card 1 -->
+          <article class="card">
+            <div class="c-head">
+              <div class="c-id"><span class="hash">#</span>2087</div>
+              <div class="c-last">LAST · FORCE EXIT</div>
+            </div>
+            <div class="thumb sc-rooftop"><span class="t-tag">天台 · 最偏爱</span></div>
+            <div class="c-stats">
+              <div class="c-stat"><div class="v">1,204</div><div class="l">总回放 TOTAL</div></div>
+              <div class="c-stat"><div class="v amber">天台 ×88</div><div class="l">最偏爱 FAV</div></div>
+            </div>
+            <div class="levels">
+              <div class="lv work"><span class="sym">▦</span><span class="n">12</span></div>
+              <div class="lv work"><span class="sym">◧</span><span class="n">9</span></div>
+              <div class="lv work"><span class="sym">▤</span><span class="n">10</span></div>
+              <div class="lv life"><span class="sym">⌂</span><span class="n">61</span></div>
+              <div class="lv work"><span class="sym">◉</span><span class="n">18</span></div>
+              <div class="lv life peak"><span class="sym">✿</span><span class="n">88</span></div>
+              <div class="lv work"><span class="sym">▭</span><span class="n">3</span></div>
+              <div class="lv life"><span class="sym">＋</span></div>
+            </div>
+            <div class="follow">+ 关注 FOLLOW</div>
+          </article>
+
+          <!-- Card 2 -->
+          <article class="card">
+            <div class="c-head">
+              <div class="c-id"><span class="hash">#</span>3991</div>
+              <div class="c-last">LAST · FORCE EXIT</div>
+            </div>
+            <div class="thumb sc-stairs"><span class="t-tag">楼梯喂猫 · 最偏爱</span></div>
+            <div class="c-stats">
+              <div class="c-stat"><div class="v">982</div><div class="l">总回放 TOTAL</div></div>
+              <div class="c-stat"><div class="v amber">楼梯 ×74</div><div class="l">最偏爱 FAV</div></div>
+            </div>
+            <div class="levels">
+              <div class="lv work"><span class="sym">▦</span><span class="n">8</span></div>
+              <div class="lv work"><span class="sym">◧</span><span class="n">11</span></div>
+              <div class="lv work"><span class="sym">▤</span><span class="n">7</span></div>
+              <div class="lv life peak"><span class="sym">⌂</span><span class="n">74</span></div>
+              <div class="lv work"><span class="sym">◉</span><span class="n">15</span></div>
+              <div class="lv life"><span class="sym">✿</span><span class="n">52</span></div>
+              <div class="lv work"><span class="sym">▭</span><span class="n">2</span></div>
+              <div class="lv life"><span class="sym">＋</span></div>
+            </div>
+            <div class="follow">+ 关注 FOLLOW</div>
+          </article>
+
+          <!-- Card 3 -->
+          <article class="card">
+            <div class="c-head">
+              <div class="c-id"><span class="hash">#</span>4120</div>
+              <div class="c-last ok">LAST · RESTART</div>
+            </div>
+            <div class="thumb sc-redsub"><span class="t-tag">红色地铁</span></div>
+            <div class="c-stats">
+              <div class="c-stat"><div class="v">1,560</div><div class="l">总回放 TOTAL</div></div>
+              <div class="c-stat"><div class="v amber">天台 ×96</div><div class="l">最偏爱 FAV</div></div>
+            </div>
+            <div class="levels">
+              <div class="lv work"><span class="sym">▦</span><span class="n">14</span></div>
+              <div class="lv work"><span class="sym">◧</span><span class="n">13</span></div>
+              <div class="lv work"><span class="sym">▤</span><span class="n">16</span></div>
+              <div class="lv life"><span class="sym">⌂</span><span class="n">66</span></div>
+              <div class="lv work peak"><span class="sym">◉</span><span class="n">31</span></div>
+              <div class="lv life"><span class="sym">✿</span><span class="n">96</span></div>
+              <div class="lv work"><span class="sym">▭</span><span class="n">4</span></div>
+              <div class="lv life"><span class="sym">＋</span></div>
+            </div>
+            <div class="follow">+ 关注 FOLLOW</div>
+          </article>
+
+          <!-- Card 4 -->
+          <article class="card">
+            <div class="c-head">
+              <div class="c-id"><span class="hash">#</span>3155</div>
+              <div class="c-last">LAST · FORCE EXIT</div>
+            </div>
+            <div class="thumb sc-store"><span class="t-tag">便利店</span></div>
+            <div class="c-stats">
+              <div class="c-stat"><div class="v">743</div><div class="l">总回放 TOTAL</div></div>
+              <div class="c-stat"><div class="v amber">天台 ×59</div><div class="l">最偏爱 FAV</div></div>
+            </div>
+            <div class="levels">
+              <div class="lv work peak"><span class="sym">▦</span><span class="n">19</span></div>
+              <div class="lv work"><span class="sym">◧</span><span class="n">10</span></div>
+              <div class="lv work"><span class="sym">▤</span><span class="n">9</span></div>
+              <div class="lv life"><span class="sym">⌂</span><span class="n">54</span></div>
+              <div class="lv work"><span class="sym">◉</span><span class="n">17</span></div>
+              <div class="lv life"><span class="sym">✿</span><span class="n">59</span></div>
+              <div class="lv work"><span class="sym">▭</span><span class="n">3</span></div>
+              <div class="lv life"><span class="sym">＋</span></div>
+            </div>
+            <div class="follow">+ 关注 FOLLOW</div>
+          </article>
+
+          <!-- Card 5 -->
+          <article class="card">
+            <div class="c-head">
+              <div class="c-id"><span class="hash">#</span>4888</div>
+              <div class="c-last ok">LAST · RESTART</div>
+            </div>
+            <div class="thumb sc-bedroom"><span class="t-tag">卧室</span></div>
+            <div class="c-stats">
+              <div class="c-stat"><div class="v">2,031</div><div class="l">总回放 TOTAL</div></div>
+              <div class="c-stat"><div class="v amber">天台 ×102</div><div class="l">最偏爱 FAV</div></div>
+            </div>
+            <div class="levels">
+              <div class="lv work"><span class="sym">▦</span><span class="n">21</span></div>
+              <div class="lv work peak"><span class="sym">◧</span><span class="n">24</span></div>
+              <div class="lv work"><span class="sym">▤</span><span class="n">19</span></div>
+              <div class="lv life"><span class="sym">⌂</span><span class="n">71</span></div>
+              <div class="lv work"><span class="sym">◉</span><span class="n">22</span></div>
+              <div class="lv life"><span class="sym">✿</span><span class="n">102</span></div>
+              <div class="lv work"><span class="sym">▭</span><span class="n">5</span></div>
+              <div class="lv life"><span class="sym">＋</span></div>
+            </div>
+            <div class="follow">+ 关注 FOLLOW</div>
+          </article>
+
+          <!-- Card 6 -->
+          <article class="card">
+            <div class="c-head">
+              <div class="c-id"><span class="hash">#</span>3772</div>
+              <div class="c-last">LAST · FORCE EXIT</div>
+            </div>
+            <div class="thumb sc-dine"><span class="t-tag">餐厅</span></div>
+            <div class="c-stats">
+              <div class="c-stat"><div class="v">658</div><div class="l">总回放 TOTAL</div></div>
+              <div class="c-stat"><div class="v amber">天台 ×55</div><div class="l">最偏爱 FAV</div></div>
+            </div>
+            <div class="levels">
+              <div class="lv work"><span class="sym">▦</span><span class="n">11</span></div>
+              <div class="lv work"><span class="sym">◧</span><span class="n">9</span></div>
+              <div class="lv work peak"><span class="sym">▤</span><span class="n">15</span></div>
+              <div class="lv life"><span class="sym">⌂</span><span class="n">49</span></div>
+              <div class="lv work"><span class="sym">◉</span><span class="n">14</span></div>
+              <div class="lv life"><span class="sym">✿</span><span class="n">55</span></div>
+              <div class="lv work"><span class="sym">▭</span><span class="n">2</span></div>
+              <div class="lv life"><span class="sym">＋</span></div>
+            </div>
+            <div class="follow">+ 关注 FOLLOW</div>
+          </article>
+        </div>
+
+        <div class="foot-note">
+          <b>DESIGN NOTE</b> · 同温层页刻意不做任何"人"的脸——每个 subject 只有编号与数据，呼应"被记录对象"的去人格化。<br/>
+          <b>THESIS</b> · 全球最热片段统计中，4,821 个 subject 的"最偏爱"清一色是天台（生活球），而"地铁等车"平均仅 ×3（系统统一死法）。批量模板的残酷，由这张页说完。
+        </div>
+      </main>
+    </div>
+  </div>
+</body>
+</html>
