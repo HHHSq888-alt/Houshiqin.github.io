@@ -5,7 +5,7 @@
 
 ## 文件
 - `index.html` —— 「我的回放 #2125」单屏（电影成片里出现的那一屏，可点击）
-- `but_netizen_page.html` —— 「同温层 / Shared Layer」公共流页（游戏内其他屏，设计交付用）
+- `but_netizen_page.html` —— 「人生册 / Life Register」其他被记录对象的人册流页（游戏内其他屏，设计交付用）
 
 ## 放到仓库的步骤
 1. 把本目录里的 `index.html` 与 `but_netizen_page.html` 复制到仓库的 `BUT/` 文件夹

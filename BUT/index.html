@@ -86,9 +86,11 @@
   .status-pill .dot{width:6px;height:6px;border-radius:50%;background:var(--red);animation:pulse 1.6s ease-in-out infinite;}
   .sync{display:flex;align-items:center;gap:6px;font-size:10.5px;font-family:var(--font-mono);color:var(--teal);letter-spacing:.3px;}
   .sync .dot{width:6px;height:6px;border-radius:50%;background:var(--teal);}
-  .icon-btn{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text-2);cursor:default;transition:background .15s;}
-  .icon-btn:hover{background:var(--bg-soft);color:var(--text);}
-  .icon-btn svg{width:16px;height:16px;}
+  .icon-btn{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text-2);cursor:pointer;border:1px solid transparent;transition:all .15s;}
+  .icon-btn:hover{background:var(--bg-soft);color:var(--text);border-color:var(--border);}
+  .icon-btn:active{transform:scale(.95);}
+  .icon-btn:focus-visible{outline:2px solid var(--teal);outline-offset:2px;}
+  .icon-btn svg{width:16px;height:16px;pointer-events:none;}
   @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(1.4);}}
 
   /* ============ SIDEBAR ============ */
@@ -170,10 +172,17 @@
 
   /* ============ LEVEL GRID ============ */
   .level-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
-  .level-card{background:var(--panel);border:1px solid var(--border);border-radius:14px;overflow:hidden;cursor:default;transition:all .2s;position:relative;}
+  .level-card{background:var(--panel);border:1px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;transition:all .22s;position:relative;user-select:none;}
   .level-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md);border-color:rgba(14,139,130,.4);}
+  .level-card:active{transform:translateY(-1px);}
+  .level-card::after{content:'↗';position:absolute;top:10px;right:10px;width:22px;height:22px;border-radius:6px;background:rgba(15,27,45,.55);color:#fff;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;opacity:0;transform:translate(2px,-2px) scale(.85);transition:all .18s;backdrop-filter:blur(3px);font-family:var(--font-mono);}
+  .level-card:hover::after{opacity:1;transform:translate(0,0) scale(1);}
+  .level-card:focus-visible{outline:2px solid var(--teal);outline-offset:3px;}
   .level-card.current{border-color:var(--amber);box-shadow:0 0 0 2px var(--amber-soft),var(--shadow);}
   .level-card.force{border-color:rgba(220,38,38,.28);}
+  /* New Slot uses + instead of ↗ */
+  .level-card[data-skip-arrow]{cursor:pointer;}
+  .level-card[data-skip-arrow]::after{content:'＋';background:rgba(14,139,130,.85);}
   .level-card .scene{height:96px;position:relative;overflow:hidden;background:#0F1B2D;}
   .level-card .scene svg{width:100%;height:100%;display:block;}
   .level-card .scene .badge{position:absolute;top:8px;font-size:9px;font-weight:700;padding:3px 7px;border-radius:5px;font-family:var(--font-mono);letter-spacing:.4px;z-index:2;backdrop-filter:blur(4px);}
@@ -194,21 +203,7 @@
   .level-card .meta .rp.muted{color:var(--text-3);}
   .level-card .meta .rp-label{font-size:9px;color:var(--text-3);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.5px;}
 
-  /* ============ TWO COL ============ */
-  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
   .panel{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:18px 20px;box-shadow:var(--shadow-sm);}
-
-  /* Favorites */
-  .fav-list{display:flex;flex-direction:column;}
-  .fav-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--border-soft);}
-  .fav-row:first-child{border-top:none;padding-top:4px;}
-  .fav-row .rank{font-size:14px;font-weight:800;color:var(--amber);font-family:var(--font-mono);width:22px;flex-shrink:0;}
-  .fav-row .scene-mini{width:42px;height:42px;border-radius:9px;flex-shrink:0;overflow:hidden;border:1px solid var(--border);}
-  .fav-row .scene-mini svg{width:100%;height:100%;display:block;}
-  .fav-row .info{flex:1;min-width:0;}
-  .fav-row .info .nm{font-size:13px;font-weight:600;}
-  .fav-row .info .en{font-size:9.5px;color:var(--text-3);font-family:var(--font-mono);letter-spacing:.3px;margin-top:1px;text-transform:uppercase;}
-  .fav-row .val{font-size:19px;font-weight:800;color:var(--amber);font-family:var(--font-mono);letter-spacing:.3px;}
 
   /* Plant */
   .plant{display:flex;flex-direction:column;gap:14px;}
@@ -362,7 +357,7 @@
   .new-slot.generating .ug-spinner{border-top-color:#64748B;}
   .new-slot.generating .ug-title{color:#475569;}
   .new-slot.generating::before{content:"GENING";position:absolute;top:8px;left:8px;font-size:8.5px;font-weight:700;letter-spacing:.8px;color:#fff;background:rgba(100,116,139,.85);padding:2px 6px;border-radius:4px;font-family:var(--font-mono);z-index:3;}
-  .new-slot.done::after{content:"DONE";position:absolute;top:8px;left:8px;font-size:8.5px;font-weight:700;letter-spacing:.8px;color:#fff;background:rgba(14,139,130,.9);padding:2px 6px;border-radius:4px;font-family:var(--font-mono);z-index:3;}
+  /* 完成态暂未启用：新增空间持续显示「生成中」 */
 
   /* ===== Force exit 全屏覆盖层 ===== */
   .fx-overlay{position:fixed;inset:0;background:#0A0203;color:#fff;z-index:200;display:flex;align-items:center;justify-content:center;overflow:hidden;font-family:var(--font-mono);}
@@ -393,6 +388,18 @@
     .fx-center{animation:fxLogoIn .25s ease 1.4s both;}
     .ug-spinner,.upload-generating::before{animation:none;}
   }
+
+  /* ============ LEVEL NAV INTERACTION ============ */
+  .nav-item.clickable{cursor:pointer;}
+  .nav-item.clickable:focus-visible{outline:2px solid var(--teal);outline-offset:2px;}
+
+  /* ============ TOAST ============ */
+  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(10px);background:#0F1B2D;color:#fff;font-family:var(--font-mono);font-size:12px;letter-spacing:.3px;padding:11px 18px;border-radius:11px;box-shadow:0 14px 36px rgba(15,27,45,.28);border:1px solid rgba(255,255,255,.08);z-index:300;opacity:0;transition:opacity .22s ease,transform .22s ease;display:flex;align-items:center;gap:9px;max-width:90vw;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .toast[hidden]{display:none;}
+  .toast .t-dot{width:7px;height:7px;border-radius:50%;background:var(--amber);box-shadow:0 0 7px var(--amber);flex-shrink:0;}
+  .toast .t-sub{color:var(--text-3);font-size:10px;}
+  @media (prefers-reduced-motion: reduce){ .toast{transition:none;} }
 </style>
 </head>
 <body>
@@ -410,7 +417,7 @@
     <div class="status-group">
       <div class="status-pill"><span class="dot"></span>RECORDED</div>
       <div class="sync"><span class="dot"></span>SYNC 100%</div>
-      <div class="icon-btn" title="设置">
+      <div class="icon-btn" id="gearBtn" role="button" tabindex="0" title="个人设置 · 查看女主档案" aria-label="个人设置">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="3"/>
           <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
@@ -427,7 +434,7 @@
     </div>
     <div class="screen-switch">
       <a class="sw active" href="index.html">我的回放</a>
-      <a class="sw" href="but_netizen_page.html">同温层<span class="arr">→</span></a>
+      <a class="sw" href="but_netizen_page.html">人生册<span class="arr">→</span></a>
     </div>
     <div class="spacer"></div>
     <div class="ctrls">
@@ -457,13 +464,13 @@
     </div>
 
     <div class="nav-label">SIMULATION</div>
-    <div class="nav-item"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>关卡选择</div>
-    <div class="nav-item"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3.5"/><path d="M3 21v-1.5a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4V21"/><circle cx="17" cy="7" r="2.5"/><path d="M21 21v-1.5a3 3 0 0 0-2.2-2.87"/></svg></span>同温层</div>
+    <div class="nav-item clickable" id="levelNav" role="button" tabindex="0" aria-label="关卡选择 · 正在等待开放中"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>关卡选择</div>
+    <a class="nav-item" href="but_netizen_page.html"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3.5"/><path d="M3 21v-1.5a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4V21"/><circle cx="17" cy="7" r="2.5"/><path d="M21 21v-1.5a3 3 0 0 0-2.2-2.87"/></svg></span>人生册</a>
     <div class="nav-item active"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 4 20 12 6 20 6 4"/></svg></span>我的回放</div>
     <div class="nav-item"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>新增空间</div>
 
     <div class="nav-label">SYSTEM</div>
-    <div class="nav-item"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg></span>关于</div>
+    <div class="nav-item clickable" id="aboutNav" role="button" tabindex="0" aria-label="关于 · 等待开放中"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg></span>关于</div>
 
     <div class="sb-foot">
       <div class="subj-card">
@@ -776,7 +783,7 @@
           </div>
 
           <!-- 8 新增空间 (upload slot) -->
-          <div class="level-card new-slot" id="newSlot" data-name="新增空间">
+          <div class="level-card new-slot" id="newSlot" data-name="新增空间" data-skip-arrow>
             <div class="scene scene-upload" id="newScene">
               <svg class="scene-svg" viewBox="0 0 200 120" preserveAspectRatio="none">
                 <rect width="200" height="120" fill="#F8FAFC"/>
@@ -803,61 +810,10 @@
         </div>
       </div>
 
-      <!-- FAV + PLANT -->
-      <div class="two-col">
-        <div class="panel">
-          <div class="sec-head" style="margin-bottom:6px;">
-            <div class="s-t">最偏爱</div>
-            <div class="s-en">YOUR FAVORITES</div>
-            <div class="spacer"></div>
-            <div class="s-meta">top 2</div>
-          </div>
-          <div class="fav-list">
-            <div class="fav-row">
-              <div class="rank">01</div>
-              <div class="scene-mini">
-                <svg viewBox="0 0 200 120" preserveAspectRatio="xMidYMid slice">
-                  <rect width="200" height="120" fill="#0A1530"/>
-                  <circle cx="150" cy="35" r="14" fill="#E0A53A" opacity=".85"/>
-                  <circle cx="155" cy="32" r="11" fill="#0A1530" opacity=".5"/>
-                  <rect x="85" y="80" width="20" height="12" rx="1" fill="#9CA3AF"/>
-                  <circle cx="100" cy="52" r="3.5" fill="#fff"/>
-                  <circle cx="100" cy="52" r="1.3" fill="#E0A53A"/>
-                </svg>
-              </div>
-              <div class="info">
-                <div class="nm">天台</div>
-                <div class="en">ROOFTOP · 生日 / 心上人</div>
-              </div>
-              <div class="val">×63</div>
-            </div>
-            <div class="fav-row">
-              <div class="rank">02</div>
-              <div class="scene-mini">
-                <svg viewBox="0 0 200 120" preserveAspectRatio="xMidYMid slice">
-                  <rect width="200" height="120" fill="#3A2818"/>
-                  <rect x="0" y="100" width="40" height="20" fill="#5A3820"/>
-                  <rect x="40" y="84" width="40" height="36" fill="#6A4828"/>
-                  <rect x="80" y="68" width="40" height="52" fill="#7A5830"/>
-                  <rect x="120" y="52" width="40" height="68" fill="#8A6838"/>
-                  <ellipse cx="96" cy="64" rx="8" ry="5" fill="#1A1010"/>
-                  <circle cx="96" cy="57" r="4" fill="#1A1010"/>
-                  <circle cx="94" cy="57" r=".5" fill="#E0A53A"/>
-                  <circle cx="98" cy="57" r=".5" fill="#E0A53A"/>
-                </svg>
-              </div>
-              <div class="info">
-                <div class="nm">楼梯喂猫</div>
-                <div class="en">STAIRS · CAT</div>
-              </div>
-              <div class="val">×58</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="panel">
-          <div class="sec-head" style="margin-bottom:6px;">
-            <div class="s-t">我的盆栽</div>
+      <!-- MY PLANT -->
+      <div class="panel">
+        <div class="sec-head" style="margin-bottom:6px;">
+          <div class="s-t">我的盆栽</div>
             <div class="s-en">PLANT TOTEM</div>
             <div class="spacer"></div>
             <div class="s-meta">MY PLANT</div>
@@ -891,10 +847,9 @@
               <div class="plant-stat"><div class="v red">—</div><div class="l">BLOOMED</div></div>
               <div class="plant-stat"><div class="v muted">过期</div><div class="l">POT</div></div>
             </div>
-            <div class="plant-note">种植于<b>过期凤梨罐</b>。从 S2 卧室冒芽，到 S6 天台<b>本应夜开</b>——但这盆，<b>从未开过</b>。</div>
+            <div class="plant-note">种植于<b>过期凤梨罐</b>。</div>
           </div>
         </div>
-      </div>
 
       <!-- TIMELINE -->
       <div>
@@ -913,8 +868,8 @@
             </div>
             <div class="tl-step sys">
               <div class="node">⚙</div>
-              <div class="t">护肤弹窗</div>
-              <div class="d">系统预选「是」<br/>你未操作</div>
+              <div class="t">护肤流程</div>
+              <div class="d">自动完成<br/>你未操作</div>
             </div>
             <div class="tl-step">
               <div class="node">✋</div>
@@ -985,18 +940,49 @@
     </div>
   </div>
 
+  <!-- =================== TOAST =================== -->
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <!-- =================== HEROINE PROFILE MODAL =================== -->
+  <div class="modal-overlay" id="heroModal" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="heroTitle">
+      <div class="modal-scene" style="background:linear-gradient(135deg,#0F1B2D,#1E293B);">
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
+          <div style="width:66px;height:66px;border-radius:50%;background:linear-gradient(135deg,#0F1B2D,#1E293B);box-shadow:inset 0 0 0 2px rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;color:#fff;font-family:var(--font-mono);font-weight:800;font-size:15px;position:relative;">
+            #2125
+            <span style="position:absolute;bottom:1px;right:1px;width:14px;height:14px;border-radius:50%;background:var(--red);border:3px solid #0F1B2D;box-shadow:0 0 0 1px rgba(220,38,38,.3);"></span>
+          </div>
+        </div>
+      </div>
+      <button class="modal-close" id="heroClose" aria-label="关闭">✕</button>
+      <div class="modal-body">
+        <span class="m-tag" style="background:var(--red-soft);color:var(--red);">RECORDED</span>
+        <h2 id="heroTitle">#2125 · 女主档案</h2>
+        <div class="m-en">SUBJECT DOSSIER · 在册人生</div>
+        <div class="m-row"><span class="m-k">编号 No.</span><span class="m-v">#2125</span></div>
+        <div class="m-row"><span class="m-k">身份 Role</span><span class="m-v">标准打工人</span></div>
+        <div class="m-row"><span class="m-k">岗位 Post</span><span class="m-v">写字楼行政</span></div>
+        <div class="m-row"><span class="m-k">录入状态</span><span class="m-v">RECORDED</span></div>
+        <div class="m-row"><span class="m-k">最偏爱片段</span><span class="m-v">天台 ×63</span></div>
+        <div class="m-row"><span class="m-k">当前光标</span><span class="m-v">天台</span></div>
+        <div class="m-row"><span class="m-k">唯一自选</span><span class="m-v">拒绝继续通勤</span></div>
+        <p class="m-desc">她是第 2,125 号被记录对象。每一天都被系统录下同一套八关流程，回放最终停在「天台」。全片唯一一次自主决定，是拒绝继续通勤。</p>
+      </div>
+    </div>
+  </div>
+
   <script>
   (function(){
     'use strict';
     var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var DATA = [
       {name:'便利店', en:'CONVENIENCE', tag:'WORK', tc:'07:42', rp:'×12', sys:'晨间通勤 · 购买带走', desc:'清晨便利店。你拿下热咖啡和饭团，店员装袋，你拎着走——标准打工人最不起眼的开场。'},
-      {name:'卧室', en:'BEDROOM', tag:'WORK', tc:'08:15', rp:'×9', sys:'护肤弹窗 · 系统替你选「是」', desc:'卧室镜前。系统弹出护肤流程，替你点了「是」，你没操作。仪容被自动整理好。'},
+      {name:'卧室', en:'BEDROOM', tag:'WORK', tc:'08:15', rp:'×9', sys:'护肤流程 · 自动完成', desc:'卧室镜前。护肤流程自动完成，你没碰屏幕——仪容已整理好。'},
       {name:'餐厅', en:'DINING', tag:'WORK', tc:'12:30', rp:'×10', sys:'标准套餐 · 重复', desc:'午休餐厅。你点了和昨天一模一样的午饭——系统记录为「无偏差」。'},
-      {name:'楼梯喂猫', en:'STAIRS · CAT', tag:'LIFE', tc:'19:05', rp:'×58', sys:'非标准行为 · 滞留 11 分钟', desc:'下班楼梯。你停下去喂一只猫，多待了 11 分钟。这是全片最接近「你」的瞬间，也是 replay 次数第二高的片段。'},
+      {name:'楼梯喂猫', en:'STAIRS · CAT', tag:'LIFE', tc:'19:05', rp:'×58', sys:'非标准行为 · 滞留 11 分钟', desc:'下班楼梯。你停下去喂一只猫，多待了 11 分钟。'},
       {name:'红色地铁', en:'RED SUBWAY · 被寻找', tag:'WORK', tc:'18:20', rp:'×21', sys:'人群定位 · 被寻找', desc:'晚高峰红地铁。你在红色车厢里被系统标记为「待寻回」——通勤变成一场被追踪的搜索。'},
-      {name:'天台', en:'ROOFTOP · 生日 / 心上人', tag:'LIFE', tc:'22:10', rp:'×63', sys:'离轨 · 天台夜开', desc:'深夜天台。紫茉莉夜开，你把它递给心上人。这是 replay 次数最多的片段——但仅存在于 sim，现实中你从未上天台。'},
-      {name:'地铁等车', en:'COMMUTE · FORCE EXIT', tag:'WORK', tc:'23:18', rp:'×3', sys:'强制终止 · FORCE EXIT', desc:'末班地铁等车。你卡在站台，系统刷了三轮强制退出——「标准」最后的挣扎。'},
+      {name:'天台', en:'ROOFTOP · 生日 / 心上人', tag:'LIFE', tc:'22:10', rp:'×63', sys:'离轨 · 天台夜开', desc:'深夜天台。紫茉莉夜开，你把它递给心上人。这是 replay 次数最多的片段。'},
+      {name:'地铁等车', en:'COMMUTE · FORCE EXIT', tag:'WORK', tc:'23:18', rp:'×3', sys:'强制终止 · FORCE EXIT', desc:'末班地铁等车。你卡在站台，系统强制终止。'},
       {name:'新增空间', en:'NEW SPACE', tag:'+', tc:'—', rp:'—', sys:'空间未生成', desc:'没有第九关。标准之外，系统不提供任何空间。新增，只是又一个空位的占位。'}
     ];
 
@@ -1225,15 +1211,65 @@
         if (!f) return;
         if (!/^image\//.test(f.type)) return;
         startUpload();
+        // 「生成中」态保持：完成态暂不启用，视频素材就绪后由 agent 内嵌
         var reader = new FileReader();
         reader.onload = function(ev){
-          var imgSrc = ev.target.result;
-          // 模拟 3.2 秒生成（让"生成中"可见，否则太短没存在感）
-          setTimeout(function(){ finishUpload(imgSrc); }, reduce ? 600 : 3200);
+          // 图片已读取，但界面持续显示「生成中」，不进入完成态
         };
         reader.readAsDataURL(f);
       });
     }
+
+    /* =================== 关卡选择 · 等待开放中 TOAST =================== */
+    var toast = document.getElementById('toast');
+    var toastTimer = null;
+    function showToast(msg, sub){
+      if (!toast) return;
+      toast.innerHTML = '<span class="t-dot"></span><span>' + msg + '</span>' + (sub ? '<span class="t-sub">' + sub + '</span>' : '');
+      toast.hidden = false;
+      void toast.offsetWidth;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(function(){
+        toast.classList.remove('show');
+        setTimeout(function(){ toast.hidden = true; }, 240);
+      }, 2400);
+    }
+    var levelNav = document.getElementById('levelNav');
+    function onLevelNav(){ showToast('关卡选择 · 正在等待开放中', 'WAITING TO OPEN'); }
+    if (levelNav){
+      levelNav.addEventListener('click', onLevelNav);
+      levelNav.addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); onLevelNav(); } });
+    }
+
+    /* =================== 个人设置 / 关于 → 女主档案 MODAL =================== */
+    var heroModal = document.getElementById('heroModal');
+    var heroClose = document.getElementById('heroClose');
+    var gearBtn = document.getElementById('gearBtn');
+    var aboutNav = document.getElementById('aboutNav');
+    function openHero(){
+      if (!heroModal) return;
+      heroModal.hidden = false;
+      if (heroClose) heroClose.focus();
+    }
+    function closeHero(){
+      if (!heroModal) return;
+      heroModal.hidden = true;
+      if (lastFocus) lastFocus.focus();
+    }
+    if (heroClose) heroClose.addEventListener('click', closeHero);
+    if (heroModal) heroModal.addEventListener('click', function(e){ if (e.target === heroModal) closeHero(); });
+    if (gearBtn){
+      gearBtn.addEventListener('click', openHero);
+      gearBtn.addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openHero(); } });
+    }
+    if (aboutNav){
+      aboutNav.addEventListener('click', function(){ showToast('关于 · 信息已移至右上角设置','SEE SETTINGS'); });
+      aboutNav.addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); showToast('关于 · 信息已移至右上角设置','SEE SETTINGS'); } });
+    }
+    document.addEventListener('keydown', function(e){
+      if (e.key === 'Escape' && heroModal && !heroModal.hidden) closeHero();
+    });
   })();
   </script>
 
