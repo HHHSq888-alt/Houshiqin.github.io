@@ -315,6 +315,10 @@
   .modal{background:var(--panel);border:1px solid var(--border);border-radius:18px;width:min(460px,100%);max-height:88vh;overflow:hidden;box-shadow:var(--shadow-lg);animation:rise .25s ease;position:relative;}
   .modal-scene{height:150px;background:#0F1B2D;position:relative;overflow:hidden;}
   .modal-scene svg{width:100%;height:100%;display:block;}
+  .modal-scene .modal-scene-media{width:100%;height:100%;}
+  .modal-scene .modal-scene-media svg{width:100%;height:100%;}
+  .modal-scene .modal-scene-media video{width:100%;height:100%;object-fit:cover;display:block;background:#000;}
+  .modal-scene .modal-scene-tip{position:absolute;left:10px;bottom:10px;background:rgba(15,27,45,.7);color:#fff;font-size:10px;font-family:var(--font-mono);padding:4px 8px;border-radius:4px;letter-spacing:.3px;backdrop-filter:blur(4px);}
   .modal-close{position:absolute;top:12px;right:12px;width:32px;height:32px;border-radius:8px;background:rgba(15,27,45,.55);color:#fff;border:none;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;z-index:3;transition:background .15s;}
   .modal-close:hover{background:rgba(15,27,45,.8);}
   .modal-close:focus-visible{outline:2px solid var(--teal);outline-offset:2px;}
@@ -331,10 +335,63 @@
   .m-desc{margin-top:14px;font-size:12.5px;line-height:1.65;color:var(--text-2);}
   @keyframes fade{from{opacity:0}to{opacity:1}}
   @keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes ugSpin{to{transform:rotate(360deg)}}
+  @keyframes ugShimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+  @keyframes fxVibe{0%,100%{transform:translate(0,0)}20%{transform:translate(-4px,2px)}40%{transform:translate(3px,-3px)}60%{transform:translate(-2px,3px)}80%{transform:translate(2px,-2px)}}
+  @keyframes fxScan{0%{top:-12%}100%{top:112%}}
+  @keyframes fxFadeOut{to{opacity:0;visibility:hidden}}
+  @keyframes fxLogoIn{0%{opacity:0;transform:scale(.7)}60%{opacity:1;transform:scale(1.06)}100%{transform:scale(1)}}
+  @keyframes fxBreath{0%,100%{opacity:.65}50%{opacity:1}}
+
+  /* ===== 新增空间卡片（点击上传 + 生成中灰度态）===== */
+  .new-slot{cursor:pointer;}
+  .new-slot:hover{border-color:rgba(14,139,130,.5);}
+  .new-slot:focus-visible{outline:2px solid var(--teal);outline-offset:3px;}
+  .scene-upload{background:#F8FAFC;}
+  .scene-upload .scene-svg{width:100%;height:100%;display:block;}
+  .upload-preview{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#0F1B2D;}
+  .upload-preview[hidden]{display:none;}
+  .upload-preview img{width:100%;height:100%;object-fit:cover;display:block;}
+  .upload-generating{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:#F8FAFC;}
+  .upload-generating[hidden]{display:none;}
+  .upload-generating::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent 0,rgba(14,139,130,.08) 50%,transparent 100%);animation:ugShimmer 1.6s linear infinite;}
+  .ug-spinner{width:22px;height:22px;border-radius:50%;border:2.5px solid #CBD5E1;border-top-color:#0E8B82;animation:ugSpin .9s linear infinite;z-index:1;}
+  .ug-title{font-size:11.5px;font-weight:600;color:var(--text-2);font-family:var(--font-mono);z-index:1;}
+  .ug-sub{font-size:9px;font-weight:700;color:var(--text-3);letter-spacing:1px;z-index:1;}
+  .new-slot.generating{filter:grayscale(1);opacity:.92;pointer-events:none;}
+  .new-slot.generating .ug-spinner{border-top-color:#64748B;}
+  .new-slot.generating .ug-title{color:#475569;}
+  .new-slot.generating::before{content:"GENING";position:absolute;top:8px;left:8px;font-size:8.5px;font-weight:700;letter-spacing:.8px;color:#fff;background:rgba(100,116,139,.85);padding:2px 6px;border-radius:4px;font-family:var(--font-mono);z-index:3;}
+  .new-slot.done::after{content:"DONE";position:absolute;top:8px;left:8px;font-size:8.5px;font-weight:700;letter-spacing:.8px;color:#fff;background:rgba(14,139,130,.9);padding:2px 6px;border-radius:4px;font-family:var(--font-mono);z-index:3;}
+
+  /* ===== Force exit 全屏覆盖层 ===== */
+  .fx-overlay{position:fixed;inset:0;background:#0A0203;color:#fff;z-index:200;display:flex;align-items:center;justify-content:center;overflow:hidden;font-family:var(--font-mono);}
+  .fx-overlay[hidden]{display:none;}
+  .fx-overlay.show{animation:fxFadeOut .4s ease 6.6s forwards;}
+  .fx-scan{position:absolute;left:0;right:0;height:14%;background:linear-gradient(180deg,transparent 0,rgba(229,72,77,.55) 50%,transparent 100%);animation:fxScan 1.8s linear infinite;pointer-events:none;}
+  .fx-noise{position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.03) 0 1px,transparent 1px 3px);mix-blend-mode:overlay;pointer-events:none;animation:fxVibe .3s steps(3) infinite;}
+  .fx-glitch{position:absolute;font-size:11px;font-weight:700;letter-spacing:3px;left:50%;transform:translateX(-50%);color:#fff;opacity:.85;mix-blend-mode:screen;pointer-events:none;}
+  .fx-glitch-a{top:14%;color:#E5484D;animation:fxVibe .15s steps(2) infinite,fxFadeOut .3s ease 1.6s forwards;}
+  .fx-glitch-b{top:14%;color:#35B0A6;transform:translateX(calc(-50% + 2px));animation:fxVibe .15s steps(2) reverse infinite,fxFadeOut .3s ease 1.6s forwards;}
+  .fx-center{text-align:center;z-index:1;animation:fxLogoIn .6s cubic-bezier(.2,.7,.2,1.2) 1.7s both;}
+  .fx-logo{position:relative;display:inline-flex;align-items:center;justify-content:center;width:120px;height:120px;border-radius:24px;background:#16181D;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06);font-family:var(--font-sans);}
+  .fx-logo b{font-size:42px;font-weight:900;color:#fff;letter-spacing:1px;}
+  .fx-logo .dot{position:absolute;top:14px;right:14px;width:10px;height:10px;border-radius:50%;background:#E5484D;box-shadow:0 0 8px rgba(229,72,77,.6);animation:fxBreath 1.4s ease-in-out infinite;}
+  .fx-meta{margin-top:32px;}
+  .fx-meta .t1{font-size:13px;font-weight:700;letter-spacing:2px;color:#fff;}
+  .fx-meta .t2{margin-top:6px;font-size:10px;letter-spacing:3px;color:rgba(255,255,255,.5);}
+  .fx-reopen{margin-top:32px;display:inline-flex;align-items:center;gap:8px;background:transparent;color:#fff;border:1px solid rgba(255,255,255,.25);font-family:var(--font-mono);font-size:12px;font-weight:600;letter-spacing:1.2px;padding:11px 18px;border-radius:8px;cursor:pointer;transition:all .15s;}
+  .fx-reopen:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.5);transform:translateY(-1px);}
+  .fx-reopen:focus-visible{outline:2px solid #E5484D;outline-offset:3px;}
+  .fx-reopen svg{width:14px;height:14px;}
+
   @media (prefers-reduced-motion: reduce){
     .replay-bar .rb-fill-i{transition:none;}
     .modal-overlay,.modal{animation:none;}
     .track-node.current .dot,.status-pill .dot,.hero .avatar::after,.subj-card .id .rec-dot,.plant-info .status .dot{animation:none;}
+    .fx-scan,.fx-noise,.fx-glitch-a,.fx-glitch-b,.fx-logo .dot{animation:none;}
+    .fx-center{animation:fxLogoIn .25s ease 1.4s both;}
+    .ug-spinner,.upload-generating::before{animation:none;}
   }
 </style>
 </head>
@@ -382,7 +439,7 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
         [ Restart ] 重新播放
       </div>
-      <div class="btn danger">
+      <div class="btn danger" id="forceExitBtn" role="button" tabindex="0" aria-label="强制退出本次回放">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
         [ Force exit ] 强制退出
       </div>
@@ -718,21 +775,30 @@
             </div>
           </div>
 
-          <!-- 8 新增空间 -->
-          <div class="level-card">
-            <div class="scene">
-              <svg viewBox="0 0 200 120" preserveAspectRatio="xMidYMid slice">
+          <!-- 8 新增空间 (upload slot) -->
+          <div class="level-card new-slot" id="newSlot" data-name="新增空间">
+            <div class="scene scene-upload" id="newScene">
+              <svg class="scene-svg" viewBox="0 0 200 120" preserveAspectRatio="none">
                 <rect width="200" height="120" fill="#F8FAFC"/>
-                <rect x="22" y="22" width="156" height="76" fill="none" stroke="#CBD5E1" stroke-width="1.5" stroke-dasharray="6 4" rx="6"/>
-                <line x1="100" y1="50" x2="100" y2="70" stroke="#94A3B8" stroke-width="2" stroke-linecap="round"/>
-                <line x1="90" y1="60" x2="110" y2="60" stroke="#94A3B8" stroke-width="2" stroke-linecap="round"/>
+                <rect x="10" y="10" width="180" height="100" fill="none" stroke="#94A3B8" stroke-width="1.6" stroke-dasharray="5 4" rx="8"/>
+                <line x1="100" y1="48" x2="100" y2="72" stroke="#64748B" stroke-width="2.2" stroke-linecap="round"/>
+                <line x1="88"  y1="60" x2="112" y2="60" stroke="#64748B" stroke-width="2.2" stroke-linecap="round"/>
               </svg>
+              <div class="upload-preview" id="uploadPreview" hidden>
+                <img id="uploadImg" alt=""/>
+              </div>
+              <div class="upload-generating" id="uploadGen" hidden>
+                <div class="ug-spinner" aria-hidden="true"></div>
+                <div class="ug-title">正在生成你的新空间</div>
+                <div class="ug-sub">GENING · PLEASE WAIT</div>
+              </div>
             </div>
             <div class="meta">
-              <div class="nm">新增空间 <span class="tag locked">+</span></div>
-              <div class="en">NEW SPACE</div>
-              <div class="row"><div class="rp muted">—</div><div class="rp-label">EMPTY</div></div>
+              <div class="nm">新增空间 <span class="tag locked" id="newSlotTag">+</span></div>
+              <div class="en" id="newSlotEn">NEW SPACE</div>
+              <div class="row"><div class="rp muted" id="newSlotRp">—</div><div class="rp-label" id="newSlotLabel">EMPTY</div></div>
             </div>
+            <input type="file" id="newSlotFile" accept="image/*" hidden>
           </div>
         </div>
       </div>
@@ -881,7 +947,12 @@
   <!-- =================== ARCHIVE MODAL =================== -->
   <div class="modal-overlay" id="modal" hidden>
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
-      <div class="modal-scene" id="mScene"></div>
+      <div class="modal-scene" id="mScene">
+        <div class="modal-scene-media" id="mMedia">
+          <!-- mMedia 内会放 svg (默认) 或 video (data-video-src 时) -->
+        </div>
+        <div class="modal-scene-tip" id="mMediaTip" hidden>▶ 正在播放 · 点击暂停 / 播放</div>
+      </div>
       <button class="modal-close" id="modalClose" aria-label="关闭">✕</button>
       <div class="modal-body">
         <span class="m-tag" id="mTag">WORK</span>
@@ -892,6 +963,25 @@
         <div class="m-row"><span class="m-k">系统记录</span><span class="m-v" id="mSys">—</span></div>
         <p class="m-desc" id="mDesc">—</p>
       </div>
+    </div>
+  </div>
+
+  <!-- =================== FORCE EXIT OVERLAY =================== -->
+  <div class="fx-overlay" id="fxOverlay" hidden aria-hidden="true">
+    <div class="fx-scan" aria-hidden="true"></div>
+    <div class="fx-noise" aria-hidden="true"></div>
+    <div class="fx-glitch fx-glitch-a" aria-hidden="true">RECORDING TERMINATED</div>
+    <div class="fx-glitch fx-glitch-b" aria-hidden="true">RECORDING TERMINATED</div>
+    <div class="fx-center">
+      <div class="fx-logo"><b>BUT</b><span class="dot"></span></div>
+      <div class="fx-meta">
+        <div class="t1">RECORDING TERMINATED · #2125</div>
+        <div class="t2">SESSION CLOSED · ON-RECORD LIFE SIMULATOR</div>
+      </div>
+      <button class="fx-reopen" id="fxReopen" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
+        Reopen this record
+      </button>
     </div>
   </div>
 
@@ -944,14 +1034,49 @@
       mRp.textContent = d.rp;
       mSys.textContent = d.sys;
       mDesc.textContent = d.desc;
-      mScene.innerHTML = card.querySelector('.scene').innerHTML;
+      // ==== 关键：把卡片的 .scene（含 svg）原样克隆进 modal；如有 data-video-src 则替换为 video ====
+      var media = document.getElementById('mMedia');
+      media.innerHTML = '';
+      var videoSrc = card.getAttribute('data-video-src');
+      if (videoSrc){
+        var v = document.createElement('video');
+        v.src = videoSrc;
+        v.muted = true;
+        v.loop = true;
+        v.playsInline = true;
+        v.autoplay = true;
+        v.preload = 'auto';
+        v.addEventListener('click', function(){
+          if (v.paused){ v.play(); mMediaTip.textContent = '▶ 正在播放 · 点击暂停 / 播放'; }
+          else { v.pause(); mMediaTip.textContent = '⏸ 已暂停 · 点击继续'; }
+        });
+        media.appendChild(v);
+        document.getElementById('mMediaTip').hidden = false;
+        var tip = document.getElementById('mMediaTip');
+        tip.textContent = '▶ 正在播放 · 点击暂停 / 播放';
+        tip.onclick = function(){
+          if (v.paused){ v.play(); tip.textContent = '▶ 正在播放 · 点击暂停 / 播放'; }
+          else { v.pause(); tip.textContent = '⏸ 已暂停 · 点击继续'; }
+        };
+      } else {
+        media.innerHTML = card.querySelector('.scene').innerHTML;
+        document.getElementById('mMediaTip').hidden = true;
+        document.getElementById('mMediaTip').onclick = null;
+      }
       lastFocus = card;
       modal.hidden = false;
       modalClose.focus();
     }
-    function closeModal(){ modal.hidden = true; if (lastFocus) lastFocus.focus(); }
+    function closeModal(){
+      modal.hidden = true;
+      var v = document.querySelector('#mMedia video');
+      if (v){ v.pause(); v.removeAttribute('src'); v.load(); }
+      if (lastFocus) lastFocus.focus();
+    }
 
     cards.forEach(function(c){
+      // 第 8 张是新增空间卡，不在这里走 modal 流程
+      if (c.id === 'newSlot') return;
       c.addEventListener('click', function(){ openModal(c); });
       c.addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openModal(c); } });
     });
@@ -996,6 +1121,118 @@
     if (restartBtn){
       restartBtn.addEventListener('click', runReplay);
       restartBtn.addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); runReplay(); } });
+    }
+
+    /* =================== FORCE EXIT =================== */
+    var fxOverlay = document.getElementById('fxOverlay');
+    var fxReopen  = document.getElementById('fxReopen');
+    var forceBtn  = document.getElementById('forceExitBtn');
+    function runForceExit(){
+      if (!fxOverlay) return;
+      // 1) 立刻打开覆盖层（红调 glitch 阶段）
+      fxOverlay.hidden = false;
+      fxOverlay.removeAttribute('aria-hidden');
+      fxOverlay.style.animation = '';
+      fxOverlay.classList.remove('show');
+      // 强制 reflow，让动画重新跑
+      void fxOverlay.offsetWidth;
+      // 2) 1.6s 后让红调 glitch 淡出 + BUT logo 出现；6.6s 后整体覆盖层自动准备好淡出（但要 reopen 后才真退出）
+      fxOverlay.classList.add('show');
+    }
+    function closeForceExit(){
+      if (!fxOverlay) return;
+      fxOverlay.hidden = true;
+      fxOverlay.setAttribute('aria-hidden', 'true');
+      fxOverlay.classList.remove('show');
+      fxOverlay.style.animation = '';
+      if (lastFocus) lastFocus.focus();
+    }
+    if (forceBtn){
+      forceBtn.addEventListener('click', runForceExit);
+      forceBtn.addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); runForceExit(); } });
+    }
+    if (fxReopen) fxReopen.addEventListener('click', closeForceExit);
+    document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && fxOverlay && !fxOverlay.hidden) closeForceExit(); });
+
+    /* =================== 新增空间（用户上传） =================== */
+    var newSlot     = document.getElementById('newSlot');
+    var newSlotFile = document.getElementById('newSlotFile');
+    var newScene    = document.getElementById('newScene');
+    var uploadSvg   = newScene ? newScene.querySelector('.scene-svg') : null;
+    var uploadPrev  = document.getElementById('uploadPreview');
+    var uploadImg   = document.getElementById('uploadImg');
+    var uploadGen   = document.getElementById('uploadGen');
+    var newSlotTag  = document.getElementById('newSlotTag');
+    var newSlotEn   = document.getElementById('newSlotEn');
+    var newSlotRp   = document.getElementById('newSlotRp');
+    var newSlotLabel= document.getElementById('newSlotLabel');
+    var uploadCounter = 0;
+
+    function pickNewSpaceFile(){
+      if (!newSlotFile) return;
+      newSlotFile.value = ''; // 允许选同一张图重新触发
+      newSlotFile.click();
+    }
+    function startUpload(){
+      // 进入生成中态
+      newSlot.classList.add('generating');
+      newSlot.classList.remove('done');
+      uploadPrev.hidden = true;
+      uploadGen.hidden = false;
+      if (uploadSvg) uploadSvg.style.opacity = '.35';
+    }
+    function finishUpload(imgSrc){
+      // 完成态
+      uploadGen.hidden = true;
+      if (uploadSvg) uploadSvg.style.opacity = '0';
+      uploadImg.src = imgSrc;
+      uploadPrev.hidden = false;
+      newSlot.classList.remove('generating');
+      newSlot.classList.add('done');
+      uploadCounter++;
+      newSlotTag.textContent = 'CUSTOM';
+      newSlotTag.className = 'tag';
+      // 把 tag 染成 teal 色
+      newSlotTag.style.background = 'rgba(14,139,130,.12)';
+      newSlotTag.style.color = '#0E8B82';
+      newSlotEn.textContent = 'CUSTOM SPACE · #' + uploadCounter;
+      newSlotRp.textContent = '×' + uploadCounter;
+      newSlotRp.classList.remove('muted');
+      newSlotLabel.textContent = 'REPLAYS';
+      newSlot.setAttribute('aria-label', '自定义空间 #' + uploadCounter + ' 已生成');
+      // 同时更新 progress-track 的"+" 节点
+      var lockedNode = document.querySelector('.track-node.locked');
+      if (lockedNode){
+        lockedNode.classList.remove('locked');
+        lockedNode.classList.add('life');
+        var lockedDot = lockedNode.querySelector('.dot'); if (lockedDot) lockedDot.textContent = '✦';
+      }
+    }
+    if (newSlot){
+      // 关键：卡片本身是 button role，但 input 在它里面，会触发两次 → 我们在 input click 时拦截冒泡
+      newSlot.addEventListener('click', function(e){
+        if (newSlot.classList.contains('generating')) return;
+        if (e.target === newSlotFile) return;
+        pickNewSpaceFile();
+      });
+      newSlot.addEventListener('keydown', function(e){
+        if (newSlot.classList.contains('generating')) return;
+        if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); pickNewSpaceFile(); }
+      });
+      newSlotFile.addEventListener('click', function(e){ e.stopPropagation(); });
+      newSlotFile.addEventListener('change', function(e){
+        var f = e.target.files && e.target.files[0];
+        if (!f) return;
+        if (!/^image\//.test(f.type)) return;
+        startUpload();
+        var reader = new FileReader();
+        reader.onload = function(ev){
+          var imgSrc = ev.target.result;
+          // 模拟 3.2 秒生成（让"生成中"可见，否则太短没存在感）
+          setTimeout(function(){ finishUpload(imgSrc); }, reduce ? 600 : 3200);
+        };
+        reader.readAsDataURL(f);
+      });
     }
   })();
   </script>
