@@ -260,6 +260,24 @@
       grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
       gap: 4rem 3rem;
     }
+/* 新增活动：每行 2 张 */
+.act-grid-2col {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 4rem 3rem;
+  margin-top: 4rem;
+}
+.act-grid-2col .card-desc {
+  font-size: 1rem;
+  color: #555;
+  font-weight: 300;
+  line-height: 1.6;
+  margin-top: 0.5rem;
+  text-align: left;
+}
+@media (max-width: 768px) {
+  .act-grid-2col { grid-template-columns: 1fr; }
+}
 
     .work-category-header {
       grid-column: 1 / -1;
@@ -783,13 +801,23 @@
   <section class="container">
     <span class="section-title">The Roots</span>
 
+       <!-- 教育（新增·最新）: HKUST PhD in Arts and Machine Creativity-->
+    <div class="list-item fade-in-up">
+      <div class="item-left">
+        <div class="item-title">The Hong Kong University of Science and Technology</div>
+        <div class="item-desc">PhD in Arts and Machine Creativity</div>
+      </div>
+      <div class="item-meta">2026.09 - 2030.06</div>
+    </div>
+
     <div class="list-item fade-in-up">
       <div class="item-left">
         <div class="item-title">The Hong Kong University of Science and Technology</div>
         <div class="item-desc">MA in Arts and Machine Creativity</div>
       </div>
-      <div class="item-meta">2025 - Present</div>
+      <div class="item-meta">2025 - 2026.06</div>
     </div>
+
 
     <div class="list-item fade-in-up">
       <div class="item-left">
@@ -1083,32 +1111,48 @@
         <div class="card-desc">As Co-Chair, led external liaison and the publicity team, shaping the festival's outreach and on-site programming (May 16–17, 2026).</div>
       </a>
     
-      <!-- 活动（新增）: 亚洲数字艺术展 — 《递归神话》Recursive Myth 2026 -->
-      <a href="https://www.adae516.com/#/artWorks/detail?id=202" target="_blank" class="foliage-card fade-in-up">
-        <div class="foliage-card-image-box">
-          <img src="images/activities/recursive_myth_2026.jpg" 
-               onerror="this.src='https://images.unsplash.com/photo-1485846234645-a62644f84728?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80'" 
-               alt="Recursive Myth 2026 封面" class="foliage-card-img">
-        </div>
-        <div class="foliage-card-meta">Digital Art Exhibition | AIGC Short Film</div>
-        <div class="foliage-card-title">Recursive Myth (递归神话) 2026</div>
-        <div class="card-desc">A 60-second AIGC sci-fi short exhibited at the Asia Digital Art Exhibition, co-created with Prof. Anyi Rao. An AI recursively simulates myth from the Classic of Mountains and Seas, asking 'Who am I?'</div>
-      </a>
+      <div class="act-grid-2col">
 
-      <!-- 活动（新增）: AAAI 2026 CVM Workshop — 《The Meeting》创意金奖 -->
-      <a href="https://amc.hkust.edu.hk/news/amc-student-achieves-top-honor-aaai-2026-cvm-workshop-demonstrating-international-recognition" target="_blank" class="foliage-card fade-in-up">
-        <div class="foliage-card-image-box">
-          <img src="images/activities/aaai_2026_gold.jpg" 
-               onerror="this.src='https://images.unsplash.com/photo-1485846234645-a62644f84728?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80'" 
-               alt="AAAI 2026 CVM Workshop 金奖封面" class="foliage-card-img">
-        </div>
-        <div class="foliage-card-meta">Award | AAAI 2026 CVM Workshop</div>
-        <div class="foliage-card-title">The Meeting — Creative Gold Award</div>
-        <div class="card-desc">My generative AI short film 'The Meeting' received the Creative Gold Award (Creativity Track) at the AAAI 2026 CVM Workshop, earning international recognition.</div>
-      </a>
+  <!-- 活动 1（最新）: 2nd HKUST AI Film Festival 2026 — 联合主席 -->
+  <a href="https://amc.hkust.edu.hk/news/2nd-hkust-ai-film-festival-event-highlights-end-credits/" target="_blank" class="foliage-card fade-in-up">
+    <div class="foliage-card-image-box">
+      <img src="images/activities/aiff_2026.jpg" 
+           onerror="this.src='https://images.unsplash.com/photo-1485846234645-a62644f84728?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80'" 
+           alt="HKUST AI Film Festival 2026 封面" class="foliage-card-img">
+    </div>
+    <div class="foliage-card-meta">AI Film Festival | Co-Chair</div>
+    <div class="foliage-card-title">2nd HKUST AI Film Festival (AIFF 2026)</div>
+    <div class="card-desc">As Co-Chair, led external liaison and the publicity team, shaping the festival's outreach and on-site programming (May 16–17, 2026).</div>
+  </a>
+
+  <!-- 活动 2: 亚洲数字艺术展 — 《递归神话》Recursive Myth 2026 -->
+  <a href="https://www.adae516.com/#/artWorks/detail?id=202" target="_blank" class="foliage-card fade-in-up">
+    <div class="foliage-card-image-box">
+      <img src="images/activities/recursive_myth_2026.jpg" 
+           onerror="this.src='https://images.unsplash.com/photo-1485846234645-a62644f84728?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80'" 
+           alt="Recursive Myth 2026 封面" class="foliage-card-img">
+    </div>
+    <div class="foliage-card-meta">Digital Art Exhibition | AIGC Short Film</div>
+    <div class="foliage-card-title">Recursive Myth (递归神话) 2026</div>
+    <div class="card-desc">A 60-second AIGC sci-fi short exhibited at the Asia Digital Art Exhibition, co-created with Prof. Anyi Rao. An AI recursively simulates myth from the Classic of Mountains and Seas, asking 'Who am I?'</div>
+  </a>
+
+  <!-- 活动 3: AAAI 2026 CVM Workshop — 《The Meeting》创意金奖 -->
+  <a href="https://amc.hkust.edu.hk/news/amc-student-achieves-top-honor-aaai-2026-cvm-workshop-demonstrating-international-recognition" target="_blank" class="foliage-card fade-in-up">
+    <div class="foliage-card-image-box">
+      <img src="images/activities/aaai_2026_gold.jpg" 
+           onerror="this.src='https://images.unsplash.com/photo-1485846234645-a62644f84728?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80'" 
+           alt="AAAI 2026 CVM Workshop 金奖封面" class="foliage-card-img">
+    </div>
+    <div class="foliage-card-meta">Award | AAAI 2026 CVM Workshop</div>
+    <div class="foliage-card-title">The Meeting — Creative Gold Award</div>
+    <div class="card-desc">My generative AI short film 'The Meeting' received the Creative Gold Award (Creativity Track) at the AAAI 2026 CVM Workshop, earning international recognition.</div>
+  </a>
+
+</div>
 
     <div class="works-grid">
-      <!-- 活动1: 谷小雨的AI+ 'KEEP RUNNING, XR!' -->
+      <!-- 活动4: 谷小雨的AI+ 'KEEP RUNNING, XR!' -->
       <a href="https://www.cztv.com/newsDetail/840332" target="_blank" class="foliage-card fade-in-up">
         <div class="foliage-card-image-box">
           <!-- [需要添加图片] 请将图片保存为 images/activities/ai_xr_1.jpg -->
@@ -1121,7 +1165,7 @@
         <div class="card-desc">Large-scale interactive experience making its Hong Kong debut.</div>
       </a>
 
-      <!-- 活动2: CCE跨校区展览 -->
+      <!-- 活动5: CCE跨校区展览 -->
       <a href="https://amc.hkust.edu.hk/news/exhibition-preview-2nd-cross-campus-exhibition" target="_blank" class="foliage-card fade-in-up">
         <div class="foliage-card-image-box">
           <!-- [需要添加图片] 请将图片保存为 images/activities/cce_exhibition_1.jpg -->
@@ -1134,7 +1178,7 @@
         <div class="card-desc">Second cross-campus exhibition at HKUST.</div>
       </a>
 
-      <!-- 活动3: CVEU项目 - 横版边框，完整显示竖版海报 -->
+      <!-- 活动6: CVEU项目 - 横版边框，完整显示竖版海报 -->
       <a href="https://cveu.github.io/" target="_blank" class="foliage-card fade-in-up">
         <div class="foliage-vertical-image-box">
           <!-- [需要添加图片] 请将竖屏图片保存为 images/activities/cveu_project_1.jpg -->
@@ -1147,7 +1191,7 @@
         <div class="card-desc">The AI for Creative Visual Content Generation, Editing and Understanding (CVEU) returns for its 8th edition with three sessions: a course, an AIGC focused BoF and an Art Tech focused BoF that together explore the evolving dialogue between machine intelligence and human creativity.</div>
       </a>
 
-      <!-- 活动4: 金宝街北戏剧公社演出 - 只放一张照片 -->
+      <!-- 活动7: 金宝街北戏剧公社演出 - 只放一张照片 -->
       <a href="https://mp.weixin.qq.com/s/ZHt_59L2OHxUY_wvxOkt6Q" target="_blank" class="foliage-card fade-in-up">
         <div class="foliage-card-image-box">
           <!-- [需要添加图片] 请将图片保存为 images/activities/jinbao_theatre_1.jpg -->
@@ -1160,7 +1204,7 @@
         <div class="card-desc">To support the further development of the drama community and to better spread theatrical culture among the residents of the neighborhood, and with the support of Jianguomen Subdistrict and Poly Jianguomen Public Cultural Operation Company, we have collaborated with Xuan Guoxian, a third-year student from the Directing Department of the Central Academy of Drama, to present the play "Romeo and Juliet" at the Juyin Theatre.</div>
       </a>
 
-      <!-- 活动5: 第八届"瞬间辩论"专业辩论赛 - 只放一张照片 -->
+      <!-- 活动8: 第八届"瞬间辩论"专业辩论赛 - 只放一张照片 -->
       <a href="https://mp.weixin.qq.com/s/tsGziYmT5bfT1_3H4zSOng" target="_blank" class="foliage-card fade-in-up">
         <div class="foliage-card-image-box">
           <!-- [需要添加图片] 请将图片保存为 images/activities/debate_8th_1.jpg -->
@@ -1173,7 +1217,7 @@
         <div class="card-desc">Professional debate competition of the Film and Television Production Department, Central Academy of Drama.</div>
       </a>
 
-      <!-- 活动6: 第七届电影电视系专业辩论赛 - 只放一张照片 -->
+      <!-- 活动9: 第七届电影电视系专业辩论赛 - 只放一张照片 -->
       <a href="https://chntheatre.edu.cn/cn/xue/detail/12863.html" target="_blank" class="foliage-card fade-in-up">
         <div class="foliage-card-image-box">
           <!-- [需要添加图片] 请将图片保存为 images/activities/debate_7th_1.jpg -->
@@ -1186,7 +1230,7 @@
         <div class="card-desc">Professional debate competition at Central Academy of Drama.</div>
       </a>
 
-      <!-- 活动7: "一带一路"国家电影教育国际联盟 - 只放一张照片 -->
+      <!-- 活动10: "一带一路"国家电影教育国际联盟 - 只放一张照片 -->
       <a href="https://mp.weixin.qq.com/s/hmixBJP17HqNyRq-ZPIyxQ" target="_blank" class="foliage-card fade-in-up">
         <div class="foliage-card-image-box">
           <!-- [需要添加图片] 请将图片保存为 images/activities/belt_road_1.jpg -->
@@ -1199,7 +1243,7 @@
         <div class="card-desc">In response to the initiative put forward by General Secretary of the CPC Central Committee to "strengthen international cooperation, jointly build the 'Belt and Road Initiative,' and achieve win-win development," and to promote film professional education and the social popularization of film culture in countries along the Belt and Road and other relevant countries, and to foster the development of young film talents from various countries, the "Belt and Road International Film Education Alliance," initiated and hosted by the Central Academy of Drama, was established on November 28th at our Changping campus.</div>
       </a>
 
-      <!-- 活动8: 第二届全国播音主持专业教育研讨会 - 只放一张照片 -->
+      <!-- 活动11: 第二届全国播音主持专业教育研讨会 - 只放一张照片 -->
       <a href="https://mp.weixin.qq.com/s/IAcfLICcQJSe8Pguzthm2w" target="_blank" class="foliage-card fade-in-up">
         <div class="foliage-card-image-box">
           <!-- [需要添加图片] 请将图片保存为 images/activities/broadcasting_1.jpg -->
@@ -1212,7 +1256,7 @@
         <div class="card-desc">The "Second National Symposium on Broadcasting and Hosting Professional Education," organized by the Central Academy of Drama and hosted by its Department of Film and Television, was held from May 29th to 30th at the Changping campus of the Central Academy of Drama. The theme of this symposium was "New Perspectives on the Development of Hosting Art in the New Era of Integrated Media."</div>
       </a>
 
-      <!-- 活动9: 纪念欧阳予倩诞辰130周年 | 欧阳予倩电影回顾展 - 只放一张照片 -->
+      <!-- 活动12: 纪念欧阳予倩诞辰130周年 | 欧阳予倩电影回顾展 - 只放一张照片 -->
       <a href="https://mp.weixin.qq.com/s/kAagS2WBgF4-JjbirZdqlw" target="_blank" class="foliage-card fade-in-up">
         <div class="foliage-card-image-box">
           <!-- [需要添加图片] 请将图片保存为 images/activities/ouyang_1.jpg -->
