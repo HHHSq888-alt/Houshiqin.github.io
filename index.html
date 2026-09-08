@@ -1002,20 +1002,29 @@
         <div class="card-title">The Meeting</div>
         <div class="card-desc">Spirit fox and white horse. Empowering traditional auctions with digital resurrection.</div>
       </div>
-      <!-- BUT - AIGC Short Film (占位卡：视频尚未上传；上传后把此卡替换为带 data-video-id 的内嵌卡或跳转卡) -->
-      <div class="card fade-in-up">
+            <!-- BUT - AIGC Short Film (YouTube 内嵌播放，复用站内点击逻辑) -->
+      <div class="card fade-in-up video-card" data-video-id="Aa7Q5_zdMZ0">
         <div class="card-image-box">
-          <div class="video-cover-container" title="即将上线">
-            <img src="images/but_poster.jpg" 
-                 onerror="this.src='https://images.unsplash.com/photo-1485846234645-a62644f84728?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80'" 
-                 alt="BUT 海报" class="video-thumbnail">
+          <div class="video-cover-container">
+            <img src="https://img.youtube.com/vi/Aa7Q5_zdMZ0/maxresdefault.jpg" 
+                 onerror="this.src='https://img.youtube.com/vi/Aa7Q5_zdMZ0/hqdefault.jpg'"
+                 alt="BUT 封面" class="video-thumbnail">
             <div class="play-button"></div>
           </div>
+          <div class="video-iframe-container">
+            <iframe width="100%" height="100%" 
+                    src="" 
+                    title="BUT - AIGC Short Film" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen></iframe>
+          </div>
         </div>
-        <div class="card-meta">AIGC Short Film · 即将上线</div>
+        <div class="card-meta">AIGC Short Film</div>
         <div class="card-title">BUT</div>
-        <div class="card-desc">一句话简介（替换为你的文案）。</div>
+        <div class="card-desc">Pseudo-interactive AIGC cinema. The viewer's choices bend the story as it unfolds.</div>
       </div>
+
 
       <!-- Dimension Jump - 手动轮播图，完整显示海报 -->
       <div class="card fade-in-up dimension-jump-container">
