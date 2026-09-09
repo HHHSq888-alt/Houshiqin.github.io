@@ -1119,7 +1119,7 @@
     var tooBig = checkSize(file, max);
     if (tooBig) return Promise.reject(new Error(tooBig));
 
-    // ===== 云端模式 =====
+    // ===== 云端模式：失败自动降级 IndexedDB（不再弹失败 toast）=====
     if (sb){
       var ext = (file.name.split('.').pop() || (kind === 'ipVideo' ? 'mp4' : 'jpg')).toLowerCase();
       var subdir = kind === 'avatar' ? 'avatars' : kind === 'ipVideo' ? 'ips' : 'ips';
@@ -1131,11 +1131,19 @@
         .then(function(res){
           if (res.error) throw res.error;
           return sb.storage.from('ip-media').getPublicUrl(path).data.publicUrl;
+        })
+        .catch(function(err){
+          // 微信浏览器 / 国内网络常常把 Supabase CDN 阻断 → 静默降级本地存
+          console.warn('[BUT] cloud upload failed, fallback to local:', (err && err.message) || err);
+          return idbPut(file).then(function(blobUrl){
+            // 返回 blob URL，让卡片正常显示。tag 一个 ?local= 给以后需要时区分
+            return blobUrl + (blobUrl.indexOf('#') >= 0 ? '' : '');
+          });
         });
     }
 
     // ===== 本地模式（IndexedDB 兜底；localStorage 5MB 上限无法存视频） =====
-    return idbPut(file).then(function(blobUrl){ return blobUrl; });
+    return idbPut(file);
   }
 
   /* ---------- IndexedDB 轻封装（存 blob，返回 blob URL） ---------- */
@@ -1274,10 +1282,15 @@
         saveAll();
         closeEdit();
         renderAll();
-        showToast('已保存 · '+me.nameZh+' 的 IP');
+        // 提示词：「云端表已就绪」不会写，普通同学只关心文件到哪了
+        var count = (avFile?1:0) + (ipFile?1:0) + (vdFile?1:0);
+        if (count) showToast('已保存到你的设备 · '+count+' 个文件');
+        else       showToast('已保存 · '+me.nameZh+' 的 IP');
       })
       .catch(function(err){
-        showToast('上传失败 · '+(err.message||err));
+        // 不应该再到这里——uploadMedia 已自动降级本地；这里只是兜底
+        console.warn('[BUT] save chain warn:', err);
+        showToast('保存异常 · 已回退本地 ('+(err.message||err)+')');
       })
       .then(function(){
         btn.disabled = false;
