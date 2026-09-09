@@ -781,7 +781,7 @@
       // 首开空表 → 灌全部种子（幂等 upsert，并发安全）
       var seed = buildDefaults();
       return sb.from('subjects').upsert(seed.map(toRow), { onConflict:'id' }).then(function(){
-        return { subjects: applyMeta(seed), currentId: null };
+        return { subjects: applyMeta(seed), currentId: meta.youId };
       });
     }).catch(function(){
       showToast('云端表未就绪 · 已用本地 (请跑 SQL)');
