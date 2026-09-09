@@ -166,6 +166,26 @@
   .c-thumb img{width:100%;height:100%;object-fit:cover;}
   .c-thumb .ph{font-size:11px;color:var(--text-3);font-family:var(--font-mono);text-align:center;padding:0 12px;line-height:1.5;}
   .c-thumb .lock-emoji{font-size:30px;opacity:.5;}
+  /* 视频预览：跟图片同尺寸，背景黑，无 controls，loop 静音 */
+  .c-thumb video{width:100%;height:100%;object-fit:cover;background:#0a1f1d;}
+  .c-thumb .play-badge{
+    position:absolute;left:10px;bottom:10px;
+    background:rgba(14,139,130,.92);color:#fff;
+    font-size:10.5px;font-weight:600;
+    padding:4px 9px;border-radius:99px;
+    display:inline-flex;align-items:center;gap:4px;
+    pointer-events:none;
+    box-shadow:0 2px 6px rgba(0,0,0,.25);
+  }
+  .c-thumb .play-badge .pb-dot{
+    width:6px;height:6px;border-radius:50%;background:#fff;
+    animation: pb-pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes pb-pulse{0%,100%{opacity:1}50%{opacity:.4}}
+  /* 卡片悬停：视频尝试播放；只在桌面端 hover 触发，移动端不会 */
+  @media (hover:hover){
+    .card:hover .c-thumb video{animation: thumb-play 1s;}
+  }
 
   .c-body{padding:12px 14px 14px;flex:1;display:flex;flex-direction:column;gap:10px;}
   .c-concept{font-size:12px;color:var(--text-2);line-height:1.55;min-height:34px;}
@@ -272,10 +292,14 @@
   .upload-row{display:flex;gap:12px;align-items:center;}
   .up-prev{width:64px;height:64px;border-radius:12px;background:var(--panel-2);border:1px dashed var(--border);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;}
   .up-prev img{width:100%;height:100%;object-fit:cover;}
+  .up-prev video{width:100%;height:100%;object-fit:cover;background:#0a1f1d;}
   .up-prev .ph{font-size:9px;color:var(--text-4);text-align:center;padding:4px;}
+  .up-prev .ph-vid{font-size:10px;color:var(--text-3);}
+  .up-prev.has-media{border-style:solid;border-color:var(--teal);}
   .up-btn{font-size:12.5px;font-weight:600;color:var(--teal);background:var(--teal-soft);border:1px solid rgba(14,139,130,.3);border-radius:9px;padding:9px 13px;}
   .up-btn:hover{background:rgba(14,139,130,.18);}
   .up-hint{font-size:10px;color:var(--text-4);margin-top:5px;font-family:var(--font-mono);}
+  .lbl-sub{font-size:10.5px;color:var(--text-3);font-weight:400;margin-left:4px;font-family:var(--font-mono);}
   .modal-foot{padding:14px 22px 20px;display:flex;gap:10px;justify-content:flex-end;border-top:1px solid var(--border-soft);}
 
   /* ============ TOAST ============ */
@@ -554,7 +578,7 @@
           <div class="up-prev" id="avPrev"><span class="ph">无</span></div>
           <div>
             <button class="up-btn" id="avBtn">上传头像</button>
-            <div class="up-hint">建议正方形 · &lt; 1MB</div>
+            <div class="up-hint">建议正方形 · ≤ 5MB · 云端</div>
           </div>
         </div>
         <input type="file" id="avFile" accept="image/*" hidden />
@@ -564,15 +588,29 @@
         <textarea id="editConcept" rows="2" maxlength="80" placeholder="例如：一个总在深夜便利店遇到的、会说话的影子"></textarea>
       </div>
       <div class="field">
-        <label>IP 主视觉</label>
+        <label>IP 主视觉 <span class="lbl-sub">· 封面图</span></label>
         <div class="upload-row">
           <div class="up-prev" id="ipPrev" style="width:96px;height:64px;"><span class="ph">未上传</span></div>
           <div>
-            <button class="up-btn" id="ipBtn">上传图片</button>
-            <div class="up-hint">建议 16:9 · &lt; 1.5MB（本地版存浏览器）</div>
+            <button class="up-btn" id="ipBtn">上传封面图</button>
+            <div class="up-hint">建议 16:9 · ≤ 10MB · 云端 supabase storage</div>
           </div>
         </div>
         <input type="file" id="ipFile" accept="image/*" hidden />
+      </div>
+      <div class="field">
+        <label>IP 视频短片 <span class="lbl-sub">· 可选 · 班级主推</span></label>
+        <div class="upload-row">
+          <div class="up-prev vid-prev" id="ipVidPrev" style="width:96px;height:64px;">
+            <span class="ph">未上传</span>
+          </div>
+          <div>
+            <button class="up-btn" id="ipVidBtn">上传视频</button>
+            <div class="up-hint">mp4 / webm / mov · ≤ 50MB · 自动静音循环</div>
+            <button class="up-btn-ghost" id="ipVidClear" type="button" style="margin-top:6px;font-size:11px;color:var(--text-3);background:none;border:none;padding:0;cursor:pointer;text-decoration:underline;">✕ 清除视频</button>
+          </div>
+        </div>
+        <input type="file" id="ipVidFile" accept="video/mp4,video/webm,video/quicktime" hidden />
       </div>
     </div>
     <div class="modal-foot">
@@ -677,13 +715,14 @@
         week: r.wk,
         state: defaultState(i),
         concept: '',
-        ipImage: '',
-        avatar: '',
+        ipImage: '',      // 封面图 URL（云端 public URL 或本地 blob URL）
+        ipVideo: '',      // IP 视频短片 URL（mp4/webm/mov）
+        avatar: '',       // 头像 URL
         votes: 0,
         replays: 0,
         follows: 0,
         isYou: false,
-        applied: false   // 你对其半开放卡是否提交过申请
+        applied: false
       };
     });
   }
@@ -700,6 +739,7 @@
       ip_title: null,
       ip_concept: s.concept || null,
       ip_image: s.ipImage || null,
+      ip_video: s.ipVideo || null,
       votes: s.votes || 0,
       followers: s.follows || 0,
       replays: s.replays || 0,
@@ -717,6 +757,7 @@
       state: r.state || 'public',
       concept: r.ip_concept || '',
       ipImage: r.ip_image || '',
+      ipVideo: r.ip_video || '',
       avatar: r.avatar || '',
       votes: r.votes || 0,
       replays: r.replays || 0,
@@ -929,6 +970,10 @@
     var thumbInner;
     if (s.state === 'locked'){
       thumbInner = '<div class="lock-emoji">🔒</div>';
+    } else if (s.ipVideo){
+      // 视频优先；自动循环静音预览，桌面端 hover 强制 play，移动端不会自动出声
+      thumbInner = '<video src="'+esc(s.ipVideo)+'" muted loop playsinline preload="metadata"></video>'
+                 + '<span class="play-badge"><span class="pb-dot"></span>视频短片</span>';
     } else if (s.ipImage){
       thumbInner = '<img src="'+esc(s.ipImage)+'" alt="">';
     } else {
@@ -961,6 +1006,27 @@
       '</div>'+
       '<div class="c-thumb">'+thumbInner+'</div>'+
       '<div class="c-body">'+ conceptHTML + actionsHTML +'</div>';
+
+    // 视频卡：桌面端 hover 强制播放；移动端点击整张卡全屏播放
+    var vid = card.querySelector('.c-thumb video');
+    if (vid){
+      vid.addEventListener('loadedmetadata', function(){
+        // 从中间开始播，避开黑帧；自动循环
+        try { vid.currentTime = Math.min(0.3, vid.duration/2 || 0); } catch(e){}
+      });
+      // 桌面 hover（仅在 hover-capable 设备）
+      card.addEventListener('mouseenter', function(){ vid.play().catch(function(){}); });
+      card.addEventListener('mouseleave', function(){ vid.pause(); vid.currentTime = 0; });
+      // 移动端点击：整张卡点击进入全屏播放（带音轨）
+      card.addEventListener('click', function(ev){
+        if (ev.target.closest('[data-act]')) return;   // 不要抢按钮的点击
+        if (window.matchMedia('(hover:hover)').matches) return; // 桌面不抢
+        // 全屏播放
+        vid.muted = false;
+        vid.controls = true;
+        vid.play().catch(function(){});
+      }, { passive:true });
+    }
 
     // bind actions
     card.querySelectorAll('[data-act]').forEach(function(btn){
@@ -1004,26 +1070,116 @@
   }
 
   /* ============ EDIT MODAL ============ */
-  var pendingAvatar = '', pendingIp = '';
+  var pendingAvatar = '', pendingIp = '', pendingIpVid = '';
+  var MAX_AVATAR = 5 * 1024 * 1024;    // 5MB
+  var MAX_IMAGE  = 10 * 1024 * 1024;   // 10MB
+  var MAX_VIDEO  = 50 * 1024 * 1024;   // 50MB
+
   function openEdit(){
     var me = you(); if (!me) return;
     $('editName').value = me.nameZh;
     $('editConcept').value = me.concept;
-    pendingAvatar = me.avatar; pendingIp = me.ipImage;
-    $('avPrev').innerHTML = me.avatar ? '<img src="'+esc(me.avatar)+'" alt="">' : '<span class="ph">无</span>';
-    $('ipPrev').innerHTML = me.ipImage ? '<img src="'+esc(me.ipImage)+'" alt="">' : '<span class="ph">未上传</span>';
+    pendingAvatar = me.avatar;
+    pendingIp     = me.ipImage;
+    pendingIpVid  = me.ipVideo;
+    $('avPrev').className    = 'up-prev' + (me.avatar ? ' has-media' : '');
+    $('avPrev').innerHTML    = me.avatar ? '<img src="'+esc(me.avatar)+'" alt="">' : '<span class="ph">无</span>';
+    $('ipPrev').className    = 'up-prev' + (me.ipImage ? ' has-media' : '');
+    $('ipPrev').innerHTML    = me.ipImage ? '<img src="'+esc(me.ipImage)+'" alt="">' : '<span class="ph">未上传</span>';
+    $('ipVidPrev').className = 'up-prev vid-prev' + (me.ipVideo ? ' has-media' : '');
+    $('ipVidPrev').innerHTML = me.ipVideo
+      ? '<video src="'+esc(me.ipVideo)+'" muted loop playsinline></video><span class="ph-vid" style="position:absolute;bottom:4px;right:4px;font-size:9px;background:rgba(14,139,130,.85);color:#fff;padding:2px 5px;border-radius:4px;">▶ 视频</span>'
+      : '<span class="ph">未上传</span>';
     $('editModal').classList.add('open');
   }
   function closeEdit(){ $('editModal').classList.remove('open'); }
 
-  function readImage(file, cb){
-    if (!file) return;
-    if (file.size > 1.6 * 1024 * 1024){
-      showToast('图片超过 1.5MB，本地版可能存不下');
-    }
+  // 文件大小校验：返回 null=通过；返回 string=拒绝原因
+  function checkSize(file, max){
+    if (!file) return '没有选中文件';
+    if (file.size > max) return '文件 '+ (file.size/1024/1024).toFixed(1) + 'MB 超过上限 '+ (max/1024/1024) +'MB';
+    return null;
+  }
+
+  // 预览用（不上传）：直接 FileReader → data URL，立刻给到 <img>/<video> 预览
+  function previewFile(file, cb){
     var rd = new FileReader();
     rd.onload = function(ev){ cb(ev.target.result); };
     rd.readAsDataURL(file);
+  }
+
+  /* ---------- 上传媒体到后端 ----------
+     返回 Promise<string>（一个可直接放进 <img src> / <video src> 的 URL）
+       - sb 存在 → sb.storage.from('ip-media').upload() → public URL
+       - sb 不存在 → 浏览器 IndexedDB 存 blob → blob URL（本地预览也能用）
+  */
+  function uploadMedia(file, kind){
+    // kind: 'avatar' | 'ipImage' | 'ipVideo'
+    var max = kind === 'avatar' ? MAX_AVATAR : kind === 'ipVideo' ? MAX_VIDEO : MAX_IMAGE;
+    var tooBig = checkSize(file, max);
+    if (tooBig) return Promise.reject(new Error(tooBig));
+
+    // ===== 云端模式 =====
+    if (sb){
+      var ext = (file.name.split('.').pop() || (kind === 'ipVideo' ? 'mp4' : 'jpg')).toLowerCase();
+      var subdir = kind === 'avatar' ? 'avatars' : kind === 'ipVideo' ? 'ips' : 'ips';
+      // 用时间戳 + subjectId 避免同秒上传冲突
+      var me = you();
+      var tag = (me ? me.id : 'anon') + '-' + Date.now();
+      var path = subdir + '/' + tag + (kind === 'avatar' ? '/avatar.' : kind === 'ipVideo' ? '/video.' : '/cover.') + ext;
+      return sb.storage.from('ip-media').upload(path, file, { upsert:true, contentType: file.type })
+        .then(function(res){
+          if (res.error) throw res.error;
+          return sb.storage.from('ip-media').getPublicUrl(path).data.publicUrl;
+        });
+    }
+
+    // ===== 本地模式（IndexedDB 兜底；localStorage 5MB 上限无法存视频） =====
+    return idbPut(file).then(function(blobUrl){ return blobUrl; });
+  }
+
+  /* ---------- IndexedDB 轻封装（存 blob，返回 blob URL） ---------- */
+  var DB_NAME = 'but_class_media_v1';
+  var DB_STORE = 'blobs';
+  var _idbPromise = null;
+  function idbOpen(){
+    if (_idbPromise) return _idbPromise;
+    _idbPromise = new Promise(function(res, rej){
+      if (!window.indexedDB) return rej(new Error('浏览器不支持 IndexedDB'));
+      var req = indexedDB.open(DB_NAME, 1);
+      req.onupgradeneeded = function(){ req.result.createObjectStore(DB_STORE); };
+      req.onsuccess = function(){ res(req.result); };
+      req.onerror = function(){ rej(req.error); };
+    });
+    return _idbPromise;
+  }
+  function idbPut(file){
+    return idbOpen().then(function(db){
+      return new Promise(function(res, rej){
+        var tx = db.transaction(DB_STORE, 'readwrite');
+        var id = 'blob_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
+        tx.objectStore(DB_STORE).put(file, id);
+        tx.oncomplete = function(){ res(URL.createObjectURL(file) + '#' + id); };
+        tx.onerror = function(){ rej(tx.error); };
+      });
+    });
+  }
+  // 从 IndexedDB 还原文件 → 拿到 blob URL；idbPut 已返回带 hash 的 URL，开机时调一次确保可访问
+  function idbHydrate(){
+    return idbOpen().then(function(db){
+      return new Promise(function(res){
+        var out = [];
+        var tx = db.transaction(DB_STORE, 'readonly');
+        var req = tx.objectStore(DB_STORE).openCursor();
+        req.onsuccess = function(ev){
+          var cur = ev.target.result;
+          if (!cur){ console.log('[IDB] hydrated', out.length, 'blobs'); return; }
+          // 注意：浏览器刷新后旧 blob URL 会失效；要持久化得存到 localStorage 表里。
+          // 此处仅做开机日志，不强制重建 URL（数据来自 localStorage meta 的 URL 仍优先）。
+          cur.continue();
+        };
+      });
+    }).catch(function(){ /* ignore */ });
   }
 
   /* ============ RENDER ALL ============ */
@@ -1049,24 +1205,84 @@
 
   $('avBtn').addEventListener('click', function(){ $('avFile').click(); });
   $('avFile').addEventListener('change', function(e){
-    readImage(e.target.files[0], function(src){ pendingAvatar = src; $('avPrev').innerHTML = '<img src="'+esc(src)+'" alt="">'; });
+    var file = e.target.files[0]; if (!file) return;
+    var err = checkSize(file, MAX_AVATAR);
+    if (err) { showToast(err); e.target.value=''; return; }
+    // 先用 data URL 做本地预览（瞬时）
+    previewFile(file, function(src){
+      pendingAvatar = src;
+      $('avPrev').className = 'up-prev has-media';
+      $('avPrev').innerHTML = '<img src="'+esc(src)+'" alt="">';
+    });
   });
   $('ipBtn').addEventListener('click', function(){ $('ipFile').click(); });
   $('ipFile').addEventListener('change', function(e){
-    readImage(e.target.files[0], function(src){ pendingIp = src; $('ipPrev').innerHTML = '<img src="'+esc(src)+'" alt="">'; });
+    var file = e.target.files[0]; if (!file) return;
+    var err = checkSize(file, MAX_IMAGE);
+    if (err) { showToast(err); e.target.value=''; return; }
+    previewFile(file, function(src){
+      pendingIp = src;
+      $('ipPrev').className = 'up-prev has-media';
+      $('ipPrev').innerHTML = '<img src="'+esc(src)+'" alt="">';
+    });
+  });
+  $('ipVidBtn').addEventListener('click', function(){ $('ipVidFile').click(); });
+  $('ipVidFile').addEventListener('change', function(e){
+    var file = e.target.files[0]; if (!file) return;
+    var err = checkSize(file, MAX_VIDEO);
+    if (err) { showToast(err); e.target.value=''; return; }
+    previewFile(file, function(src){
+      pendingIpVid = src;
+      $('ipVidPrev').className = 'up-prev vid-prev has-media';
+      $('ipVidPrev').innerHTML = '<video src="'+esc(src)+'" muted loop playsinline autoplay></video>'
+        + '<span class="ph-vid" style="position:absolute;bottom:4px;right:4px;font-size:9px;background:rgba(14,139,130,.85);color:#fff;padding:2px 5px;border-radius:4px;">▶ 预览</span>';
+    });
+  });
+  $('ipVidClear').addEventListener('click', function(){
+    pendingIpVid = '';
+    $('ipVidPrev').className = 'up-prev vid-prev';
+    $('ipVidPrev').innerHTML = '<span class="ph">未上传</span>';
+    $('ipVidFile').value = '';
+    showToast('已清除视频 · 保存后生效');
   });
   $('editSave').addEventListener('click', function(){
     var me = you(); if (!me) return;
     var nm = $('editName').value.trim();
     if (nm) me.nameZh = nm;
     me.concept = $('editConcept').value.trim();
-    me.avatar = pendingAvatar;
-    me.ipImage = pendingIp;
-    me._dirty = true;
-    saveAll();
-    closeEdit();
-    renderAll();
-    showToast('已保存 · '+me.nameZh+' 的 IP');
+    // pendingAvatar / pendingIp / pendingIpVid 当前可能是 data URL（未真正上传）
+    // 这里要上传到云端 / IndexedDB，换成永久 URL 后再写入
+    var btn = $('editSave');
+    btn.disabled = true;
+    btn.textContent = '上传中…';
+    Promise.resolve()
+      .then(function(){
+        var avFile = $('avFile').files[0];
+        var ipFile = $('ipFile').files[0];
+        var vdFile = $('ipVidFile').files[0];
+        var tasks = [];
+        if (avFile) tasks.push(uploadMedia(avFile, 'avatar').then(function(u){ pendingAvatar = u; }));
+        if (ipFile) tasks.push(uploadMedia(ipFile, 'ipImage').then(function(u){ pendingIp     = u; }));
+        if (vdFile) tasks.push(uploadMedia(vdFile, 'ipVideo').then(function(u){ pendingIpVid  = u; }));
+        return Promise.all(tasks);
+      })
+      .then(function(){
+        me.avatar  = pendingAvatar;
+        me.ipImage = pendingIp;
+        me.ipVideo = pendingIpVid;
+        me._dirty  = true;
+        saveAll();
+        closeEdit();
+        renderAll();
+        showToast('已保存 · '+me.nameZh+' 的 IP');
+      })
+      .catch(function(err){
+        showToast('上传失败 · '+(err.message||err));
+      })
+      .then(function(){
+        btn.disabled = false;
+        btn.textContent = '保存';
+      });
   });
 
   // filter tabs
