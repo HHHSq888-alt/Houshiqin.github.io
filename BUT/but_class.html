@@ -445,7 +445,6 @@
     <div class="name-grid" id="nameGrid"></div>
     <div class="enter-foot">
       <button class="enter-share" id="shareLinkBtn" type="button">📋 复制课堂链接 · 发给同学</button>
-      <div class="enter-share-hint">二维码仍可用于投屏；链接更适合私发</div>
     </div>
   </div>
 </div>
@@ -729,8 +728,9 @@
       return sb.from('subjects').upsert(seed.map(toRow), { onConflict:'id' }).then(function(){
         return { subjects: applyMeta(seed), currentId: meta.youId };
       });
-    }).catch(function(){
-      showToast('云端表未就绪 · 已用本地 (请跑 SQL)');
+    }).catch(function(err){
+      // 云端拉取失败 → 静默降级到本地（不再弹 toast，避免登录时被误打扰）
+      try { console.warn('[BUT] 云端表未就绪，已用本地：', err); } catch(e){}
       return loadLocal();
     });
   }
@@ -789,7 +789,11 @@
         '<div class="nc-av">'+initial(s.nameZh)+'</div>'+
         '<div><div class="nc-name">'+esc(s.nameZh)+'</div><div class="nc-en">'+esc(s.nameEn)+'</div></div>'+
         '<div class="nc-wk">W'+s.week+'</div>';
-      chip.addEventListener('click', function(){ enterAs(s.id); });
+      chip.addEventListener('click', function(){
+        // 点 chip 不直接进入；只把名字填进搜索框 + 自动点登录按钮 → 仍走显式登录
+        $('nameSearch').value = s.nameZh;
+        loginByName();
+      });
       grid.appendChild(chip);
     });
     if (!grid.children.length){
