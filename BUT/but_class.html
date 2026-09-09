@@ -690,7 +690,10 @@
   // [SUPABASE-HOOK] 读取：云端优先；名单扩容时自动补齐缺失 id（不覆盖已有行）；失败/未建表回落本地
   function loadAll(){
     if (!sb) return Promise.resolve(loadLocal());
-    return sb.from('subjects').select('*').then(function(res){
+    // 4s 主动超时：CDN 被墙 / 网络慢时不阻塞首屏
+    var timeout = new Promise(function(_, rej){ setTimeout(function(){ rej(new Error('timeout')); }, 4000); });
+    var query = sb.from('subjects').select('*');
+    return Promise.race([query, timeout]).then(function(res){
       if (res.error) throw res.error;
       var meta = loadLocalMeta();
       var applyMeta = function(subs){
