@@ -740,13 +740,13 @@
     }catch(e){}
   }
 
-  // 本地兜底仓储
+  // 本地兜底仓储（保留本地 meta.youId 让 overlay 知道「上次选了谁」）
   function loadLocal(){
     try{
       var raw = localStorage.getItem(STORAGE_KEY);
       if (raw){ var d = JSON.parse(raw); if (d && d.subjects && d.subjects.length === ROSTER.length) return d; }
     }catch(e){}
-    return { subjects: buildDefaults(), currentId: null };
+    return { subjects: buildDefaults(), currentId: loadLocalMeta().youId };
   }
 
   // [SUPABASE-HOOK] 读取：云端优先；名单扩容时自动补齐缺失 id（不覆盖已有行）；失败/未建表回落本地
