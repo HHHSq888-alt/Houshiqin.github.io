@@ -106,6 +106,9 @@
   .btn-primary:hover{background:var(--teal-deep);transform:translateY(-1px);box-shadow:var(--shadow-md);}
   .btn-ghost{background:var(--panel);color:var(--text-2);border:1px solid var(--border);}
   .btn-ghost:hover{background:var(--panel-2);color:var(--text);}
+  .btn-danger{color:#B23B3B;border-color:rgba(178,59,59,.3);}
+  .btn-danger:hover{background:rgba(178,59,59,.08);color:#B23B3B;}
+  .btn-sm{font-size:12px;padding:7px 12px;border-radius:9px;gap:5px;}
   .btn:focus-visible{outline:2px solid var(--teal);outline-offset:2px;}
 
   /* ============ FILTER TABS ============ */
@@ -307,9 +310,15 @@
     .rank-chip .rc-name{font-size:11.5px;}
     .rank-chip .rc-v{font-size:9.5px;}
 
-    /* —— filters 紧凑 —— */
-    .filters{gap:6px; margin-bottom:12px;}
-    .ftab{font-size:11.5px; padding:6px 11px;}
+    /* —— filters 横滑不换行 —— */
+    .filters{
+      gap:6px; margin-bottom:12px;
+      flex-wrap:nowrap; overflow-x:auto;
+      -webkit-overflow-scrolling:touch; scrollbar-width:none;
+      padding-bottom:2px;
+    }
+    .filters::-webkit-scrollbar{display:none;}
+    .ftab{font-size:11.5px; padding:6px 11px; flex:0 0 auto;}
 
     /* —— gallery 单列 —— */
     .gallery{grid-template-columns:1fr; gap:11px; margin-top:6px;}
@@ -351,6 +360,9 @@
     .modal-head{padding:14px 18px;}
     .modal-body{padding:14px 18px; gap:13px;}
     .modal-foot{padding:12px 18px calc(16px + env(safe-area-inset-bottom));}
+    .modal-foot{flex-wrap:wrap; gap:8px;}
+    .modal-foot .btn{flex:1 1 calc(50% - 4px); justify-content:center; padding:10px 12px;}
+    .modal-foot .spacer{display:none;}
 
     /* —— toast —— */
     .toast{
@@ -434,6 +446,7 @@
           <div id="ybMeta">RECORDED SUBJECT · #—</div>
         </div>
         <div class="spacer"></div>
+        <button class="btn btn-ghost btn-sm yb-swap" id="swapIdentity" title="切回选择页" aria-label="切回选择页">⇄ 换人</button>
         <button class="btn btn-primary" id="editMyIp">✎ 编辑我的 IP</button>
       </div>
 
@@ -443,7 +456,7 @@
 
       <!-- FILTERS -->
       <div class="filters" id="filters">
-        <button class="ftab active" data-f="all">全部 40</button>
+        <button class="ftab active" data-f="all">全部 43</button>
         <button class="ftab" data-f="public">公开</button>
         <button class="ftab" data-f="semi">半开放</button>
         <button class="ftab" data-f="locked">已锁定</button>
@@ -453,7 +466,7 @@
       <div class="gallery" id="gallery"></div>
 
       <div class="foot-note">
-        CLASS GALLERY · AMCC 5140 · 40 SUBJECTS ONLINE<br/>
+        CLASS GALLERY · AMCC 5140 · 43 SUBJECTS ONLINE<br/>
         你是 sim 里被记录的 subject 之一。投票、关注、回放都会被记录。<br/>
         <span id="syncMode">模式：本地存储 (LOCAL) · 投屏/共享排行需连接云端</span>
       </div>
@@ -516,6 +529,8 @@
       </div>
     </div>
     <div class="modal-foot">
+      <button class="btn btn-ghost btn-danger" id="editSwap" title="切回选择页重选身份">⇄ 切换身份</button>
+      <div class="spacer"></div>
       <button class="btn btn-ghost" id="editCancel">取消</button>
       <button class="btn btn-primary" id="editSave">保存</button>
     </div>
@@ -793,6 +808,22 @@
     showToast('已进场 · 你是 #'+id+' '+you().nameZh);
   }
 
+  // 重选身份：清空 youId → 切回 overlay → 自动 focus 搜索框
+  function swapIdentity(){
+    DATA.currentId = null;
+    DATA.subjects.forEach(function(s){ s.isYou = false; });
+    saveAll();
+    closeEdit();
+    renderAll();
+    var ov = $('enterOverlay');
+    ov.style.display = '';
+    // 清空搜索框 & 重新渲染全名单
+    var ns = $('nameSearch'); ns.value = ''; renderNameGrid('');
+    // 等一帧再 focus，避免 iOS 微信 WebView 弹出键盘错位
+    setTimeout(function(){ try{ ns.focus({preventScroll:true}); }catch(e){ ns.focus(); } }, 80);
+    showToast('已退出 · 请重新选择身份');
+  }
+
   /* ============ RENDER: ME CARD / BANNER ============ */
   function renderMe(){
     var me = you();
@@ -963,6 +994,8 @@
   $('navReplay').addEventListener('click', function(){ showToast('我的回放 · 见主站 BUT/'); });
   $('levelNav').addEventListener('click', function(){ showToast('关卡选择 · 正在等待开放中 / WAITING TO OPEN'); });
   $('editMyIp').addEventListener('click', openEdit);
+  $('swapIdentity').addEventListener('click', swapIdentity);
+  $('editSwap').addEventListener('click', swapIdentity);
   $('editClose').addEventListener('click', closeEdit);
   $('editCancel').addEventListener('click', closeEdit);
   $('editModal').addEventListener('click', function(e){ if (e.target === $('editModal')) closeEdit(); });
