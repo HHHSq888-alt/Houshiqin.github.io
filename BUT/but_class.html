@@ -182,6 +182,13 @@
     animation: pb-pulse 1.6s ease-in-out infinite;
   }
   @keyframes pb-pulse{0%,100%{opacity:1}50%{opacity:.4}}
+  /* 盆栽道具：挂在 IP 脚下（缩略右下角） */
+  .c-thumb .prop-badge{
+    position:absolute; right:8px; bottom:8px; width:34px; height:34px; border-radius:9px;
+    background:rgba(255,255,255,.92); border:1px solid var(--border); overflow:hidden;
+    box-shadow:0 2px 6px rgba(0,0,0,.18); padding:2px; display:flex; align-items:center; justify-content:center;
+  }
+  .c-thumb .prop-badge img{width:100%;height:100%;object-fit:cover;border-radius:6px;}
   /* 卡片悬停：视频尝试播放；只在桌面端 hover 触发，移动端不会 */
   @media (hover:hover){
     .card:hover .c-thumb video{animation: thumb-play 1s;}
@@ -233,6 +240,16 @@
     background:var(--panel-2);transition:all .15s;
   }
   .enter-search input:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-soft);background:#fff;}
+  .enter-search{display:flex;flex-direction:column;gap:10px;}
+  .enter-login-btn{width:100%;justify-content:center;padding:12px;font-size:14px;}
+  .enter-hint{font-size:11px;color:var(--text-3);font-family:var(--font-mono);text-align:center;}
+  .enter-foot{border-top:1px solid var(--border-soft);padding:14px 24px 20px;display:flex;flex-direction:column;gap:7px;align-items:center;}
+  .enter-share{
+    background:var(--panel-2);color:var(--text-2);border:1px solid var(--border);border-radius:10px;
+    font-size:12.5px;font-weight:600;padding:9px 16px;transition:all .15s;
+  }
+  .enter-share:hover{background:var(--teal-soft);border-color:rgba(14,139,130,.3);color:var(--teal);}
+  .enter-share-hint{font-size:10px;color:var(--text-4);font-family:var(--font-mono);}
 
   /* 上次已选身份卡（只在 localStorage 残留 meta 时出现）*/
   .enter-remember{
@@ -312,140 +329,7 @@
 
   .foot-note{margin-top:28px;font-size:10.5px;color:var(--text-4);font-family:var(--font-mono);letter-spacing:.4px;text-align:center;line-height:1.7;}
 
-  /* ============ RESPONSIVE ============ */
-  @media (max-width:720px){
-    /* —— shell —— */
-    .app{grid-template-rows:auto 1fr;}
-    .sidebar{display:none;}
-
-    /* —— topbar 改成两行：上行 logo+标题，下行 LIVE+gear —— */
-    .topbar{
-      height:auto; min-height:60px;
-      padding:10px 14px;
-      flex-wrap:wrap; gap:10px 12px;
-      row-gap:8px;
-    }
-    .topbar > .spacer{display:none;}
-    .topbar > .logo{flex:0 0 auto; flex-shrink:0;}
-    .topbar > div:not(.spacer):not(.live-pill):not(.icon-btn):not(.logo){
-      flex:1; min-width:0;
-    }
-    .t-title{font-size:11.5px;letter-spacing:.1px;line-height:1.3;}
-    .t-title .course-code{display:inline-block;margin-left:4px;font-size:9px;padding:1px 5px;}
-    .live-pill{
-      order:3; flex:1; justify-content:center;
-      font-size:10px; padding:5px 10px;
-    }
-    .live-pill #onlineCount{font-weight:700;}
-    .icon-btn{order:2;}
-
-    /* —— main —— */
-    .main{padding:14px 14px calc(40px + env(safe-area-inset-bottom)); max-height:none;}
-
-    /* —— you-banner wrap + 按钮全宽 —— */
-    .you-banner{
-      flex-wrap:wrap; gap:10px; padding:12px 14px;
-    }
-    .you-banner .yb-av{width:40px;height:40px;font-size:14px;}
-    .you-banner .yb-txt{min-width:0;flex:1;}
-    .you-banner .yb-txt b{font-size:14px;}
-    .you-banner .spacer{display:none;}
-    .you-banner .btn{
-      flex-basis:100%; justify-content:center; padding:9px 14px;
-      font-size:12.5px;
-    }
-
-    /* —— 排行条 —— */
-    .rank-label{font-size:10.5px;}
-    .rank-chip{min-width:124px; padding:6px 10px; gap:7px;}
-    .rank-chip .rc-n{font-size:13px;width:18px;}
-    .rank-chip .rc-av{width:26px;height:26px;font-size:11px;}
-    .rank-chip .rc-name{font-size:11.5px;}
-    .rank-chip .rc-v{font-size:9.5px;}
-
-    /* —— filters 多行 wrap 让 4 个 chip 都可见 —— */
-    .filters{
-      gap:5px; margin-bottom:12px;
-      flex-wrap:wrap; overflow-x:visible;
-    }
-    .ftab{font-size:11px; padding:5px 10px; flex:0 0 auto;}
-
-    /* —— enter-remember 适配窄屏 —— */
-    .enter-remember{margin:10px 16px 0; padding:10px 12px; gap:10px;}
-    .enter-remember .er-label{font-size:9px; padding:2px 6px;}
-    .enter-remember .er-av{width:34px;height:34px;font-size:13px;}
-    .enter-remember .er-name{font-size:13px;}
-    .enter-remember .er-continue{padding:7px 10px; font-size:11.5px;}
-    .enter-remember .er-hint{display:none;}
-
-    /* —— gallery 单列 —— */
-    .gallery{grid-template-columns:1fr; gap:11px; margin-top:6px;}
-    .card:hover{transform:none;}
-
-    /* —— 卡片头 wrap，badge 滑到右上 —— */
-    .c-head{flex-wrap:wrap; gap:8px;}
-    .c-id-wrap{flex:1 1 calc(100% - 58px);}
-    .state-badge{margin-left:auto;}
-    .week-badge{top:10px; right:10px; font-size:8.5px; padding:2px 6px;}
-
-    /* —— 卡片缩紧 —— */
-    .c-thumb{height:108px;}
-    .c-body{padding:11px 12px 12px;}
-    .c-name{font-size:13.5px;}
-    .c-concept{font-size:11.5px;}
-    .act .a-n{font-size:10.5px;}
-
-    /* —— enter overlay —— */
-    .overlay{padding:12px;}
-    .enter-box{max-height:94vh; border-radius:16px;}
-    .enter-head{padding:18px 18px 12px;}
-    .enter-head .eh-kicker{font-size:10px;}
-    .enter-head h2{font-size:18px;}
-    .enter-head p{font-size:12px;}
-    .enter-search{padding:12px 18px 6px;}
-    .enter-search input{font-size:13.5px; padding:11px 13px;}
-    .name-grid{padding:8px 18px 18px; gap:8px;}
-    .name-chip{padding:9px 11px; gap:9px;}
-    .name-chip .nc-av{width:32px;height:32px;font-size:12px;}
-    .name-chip .nc-name{font-size:12.5px;}
-
-    /* —— modal —— */
-    .modal{padding:10px; align-items:flex-end;}
-    .modal-box{
-      max-height:92vh; border-radius:16px 16px 0 0;
-      width:100%;
-    }
-    .modal-head{padding:14px 18px;}
-    .modal-body{padding:14px 18px; gap:13px;}
-    .modal-foot{padding:12px 18px calc(16px + env(safe-area-inset-bottom));}
-    .modal-foot{flex-wrap:wrap; gap:8px;}
-    .modal-foot .btn{flex:1 1 calc(50% - 4px); justify-content:center; padding:10px 12px;}
-    .modal-foot .spacer{display:none;}
-
-    /* —— toast —— */
-    .toast{
-      left:14px; right:14px; transform:none;
-      bottom:calc(18px + env(safe-area-inset-bottom));
-      text-align:center;
-    }
-    .toast.show{transform:none;}
-
-    /* —— 脚注 —— */
-    .foot-note{font-size:10px; margin-top:22px;}
-  }
-
-  /* iPhone SE / 360px 以下 */
-  @media (max-width:360px){
-    .topbar{padding:8px 12px;}
-    .t-title{font-size:10.5px;}
-    .t-title .course-code{display:none;}
-    .main{padding:12px 12px calc(36px + env(safe-area-inset-bottom));}
-    .you-banner{padding:10px 12px;}
-    .c-head{padding:11px 12px 9px;}
-    .c-body{padding:10px 12px 12px;}
-    .ftab{font-size:11px; padding:5px 9px;}
-    .rank-chip{min-width:115px;}
-  }
+  /* DESKTOP ONLY —— 已移除所有 mobile 媒体查询（2026-09-10）*/
 
   @media (prefers-reduced-motion:reduce){
     *{animation:none !important;transition:none !important;}
@@ -473,15 +357,15 @@
     <aside class="sidebar">
       <div class="nav-item clickable" id="navReplay">
         <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></span>
-        我的回放
+        我的空间
       </div>
       <div class="nav-item active">
         <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>
-        同学人册
+        在册目录
       </div>
       <div class="nav-item clickable" id="levelNav">
         <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg></span>
-        关卡选择
+        露天画布
       </div>
       <div class="nav-sep"></div>
       <div class="nav-item">
@@ -490,7 +374,7 @@
       </div>
       <!-- ME CARD -->
       <div class="me-card" id="meCard">
-        <div class="mc-empty">尚未进场。<br/>从「同学人册」选择你的名字即可开始编辑你的 IP。</div>
+        <div class="mc-empty">尚未进场。<br/>从「在册目录」选择你的名字即可开始编辑你的 IP。</div>
       </div>
     </aside>
 
@@ -554,9 +438,15 @@
       </div>
     </div>
     <div class="enter-search">
-      <input type="text" id="nameSearch" placeholder="搜索中文名 / 拼音 / 英文名…" aria-label="搜索名字" />
+      <input type="text" id="nameSearch" placeholder="输入或搜索你的名字（中文 / 英文）…" aria-label="输入名字" />
+      <button class="btn btn-primary enter-login-btn" id="loginBtn" type="button">登录 · 进入我的空间</button>
+      <div class="enter-hint" id="loginHint">输入名字后点登录；或下方直接点选。</div>
     </div>
     <div class="name-grid" id="nameGrid"></div>
+    <div class="enter-foot">
+      <button class="enter-share" id="shareLinkBtn" type="button">📋 复制课堂链接 · 发给同学</button>
+      <div class="enter-share-hint">二维码仍可用于投屏；链接更适合私发</div>
+    </div>
   </div>
 </div>
 
@@ -612,6 +502,18 @@
         </div>
         <input type="file" id="ipVidFile" accept="video/mp4,video/webm,video/quicktime" hidden />
       </div>
+    </div>
+    <div class="field">
+      <label>我的道具 <span class="lbl-sub">· 盆栽 · 可选</span></label>
+      <div class="upload-row">
+        <div class="up-prev" id="propPrev" style="width:64px;height:64px;"><span class="ph">未上传</span></div>
+        <div>
+          <button class="up-btn" id="propBtn">上传道具</button>
+          <div class="up-hint">mp4 / gif / webp · ≤ 2MB · 挂在 IP 脚下</div>
+          <button class="up-btn-ghost" id="propClear" type="button" style="margin-top:6px;font-size:11px;color:var(--text-3);background:none;border:none;padding:0;cursor:pointer;text-decoration:underline;">✕ 清除道具</button>
+        </div>
+      </div>
+      <input type="file" id="propFile" accept="video/mp4,image/gif,image/webp,video/webm" hidden />
     </div>
     <div class="modal-foot">
       <button class="btn btn-ghost btn-danger" id="editSwap" title="切回选择页重选身份">⇄ 切换身份</button>
@@ -722,7 +624,8 @@
         replays: 0,
         follows: 0,
         isYou: false,
-        applied: false
+        applied: false,
+        prop: ''            // 盆栽道具 URL（mp4/gif/webp ≤2MB），挂在 IP 脚下
       };
     });
   }
@@ -740,6 +643,7 @@
       ip_concept: s.concept || null,
       ip_image: s.ipImage || null,
       ip_video: s.ipVideo || null,
+      prop: s.prop || null,
       votes: s.votes || 0,
       followers: s.follows || 0,
       replays: s.replays || 0,
@@ -758,6 +662,7 @@
       concept: r.ip_concept || '',
       ipImage: r.ip_image || '',
       ipVideo: r.ip_video || '',
+      prop: r.prop || '',
       avatar: r.avatar || '',
       votes: r.votes || 0,
       replays: r.replays || 0,
@@ -839,7 +744,12 @@
     if (!dirty.length) return Promise.resolve();
     var rows = dirty.map(toRow);
     dirty.forEach(function(s){ s._dirty = false; });
-    return sb.from('subjects').upsert(rows, { onConflict:'id' }).catch(function(){
+    // Supabase v2 的 upsert() 返回 thenable 但未实现 .catch()，得包一层 Promise
+    return Promise.resolve(sb.from('subjects').upsert(rows, { onConflict:'id' })).then(function(res){
+      if (res && res.error) throw res.error;
+    }).catch(function(){
+      // 任意失败：把行标回脏，下次再试
+      dirty.forEach(function(s){ s._dirty = true; });
       showToast('云端同步失败 · 已存本机');
     });
   }
@@ -896,6 +806,26 @@
     showToast('已进场 · 你是 #'+id+' '+you().nameZh);
   }
 
+  // 显式登录：输入名字（中文/英文，大小写不敏感）→ 匹配在册名单才进场
+  function loginByName(){
+    var raw = ($('nameSearch').value || '').trim();
+    if (!raw){ showToast('请输入你的名字'); $('nameSearch').focus(); return; }
+    var q = raw.toLowerCase().replace(/\s+/g,'');
+    var hit = null;
+    DATA.subjects.forEach(function(s){
+      if (hit) return;
+      var zh = (s.nameZh || '').toLowerCase().replace(/\s+/g,'');
+      var en = (s.nameEn || '').toLowerCase().replace(/\s+/g,'');
+      if (zh === q || en === q || en.indexOf(q) >= 0 || zh.indexOf(q) >= 0) hit = s;
+    });
+    if (!hit){
+      $('loginHint').textContent = '没找到「'+raw+'」，请从下方点选，或检查拼写。';
+      $('loginHint').style.color = 'var(--red)';
+      return;
+    }
+    enterAs(hit.id);
+  }
+
   // 重选身份：清空 youId → 切回 overlay → 自动 focus 搜索框
   function swapIdentity(){
     DATA.currentId = null;
@@ -918,7 +848,7 @@
     var card = $('meCard');
     var banner = $('youBanner');
     if (!me){
-      card.innerHTML = '<div class="mc-empty">尚未进场。<br/>从「同学人册」选择你的名字即可开始编辑你的 IP。</div>';
+      card.innerHTML = '<div class="mc-empty">尚未进场。<br/>从「在册目录」选择你的名字即可开始编辑你的 IP。</div>';
       banner.style.display = 'none';
       return;
     }
@@ -1004,7 +934,7 @@
         '<div class="c-en">'+esc(s.nameEn)+' · #'+esc(s.id)+'</div></div>'+
         '<span class="state-badge state-'+s.state+'">'+stateLabel+'</span>'+
       '</div>'+
-      '<div class="c-thumb">'+thumbInner+'</div>'+
+      '<div class="c-thumb">'+thumbInner+(s.prop?'<div class="prop-badge" title="道具"><img src="'+esc(s.prop)+'" alt="道具"></div>':'')+'</div>'+
       '<div class="c-body">'+ conceptHTML + actionsHTML +'</div>';
 
     // 视频卡：桌面端 hover 强制播放；移动端点击整张卡全屏播放
@@ -1070,10 +1000,11 @@
   }
 
   /* ============ EDIT MODAL ============ */
-  var pendingAvatar = '', pendingIp = '', pendingIpVid = '';
+  var pendingAvatar = '', pendingIp = '', pendingIpVid = '', pendingProp = '';
   var MAX_AVATAR = 5 * 1024 * 1024;    // 5MB
   var MAX_IMAGE  = 10 * 1024 * 1024;   // 10MB
   var MAX_VIDEO  = 50 * 1024 * 1024;   // 50MB
+  var MAX_PROP   =  2 * 1024 * 1024;   // 2MB 盆栽道具
 
   function openEdit(){
     var me = you(); if (!me) return;
@@ -1082,6 +1013,9 @@
     pendingAvatar = me.avatar;
     pendingIp     = me.ipImage;
     pendingIpVid  = me.ipVideo;
+    pendingProp   = me.prop;
+    $('propPrev').className    = 'up-prev' + (me.prop ? ' has-media' : '');
+    $('propPrev').innerHTML    = me.prop ? '<img src="'+esc(me.prop)+'" alt="">' : '<span class="ph">未上传</span>';
     $('avPrev').className    = 'up-prev' + (me.avatar ? ' has-media' : '');
     $('avPrev').innerHTML    = me.avatar ? '<img src="'+esc(me.avatar)+'" alt="">' : '<span class="ph">无</span>';
     $('ipPrev').className    = 'up-prev' + (me.ipImage ? ' has-media' : '');
@@ -1114,19 +1048,19 @@
        - sb 不存在 → 浏览器 IndexedDB 存 blob → blob URL（本地预览也能用）
   */
   function uploadMedia(file, kind){
-    // kind: 'avatar' | 'ipImage' | 'ipVideo'
-    var max = kind === 'avatar' ? MAX_AVATAR : kind === 'ipVideo' ? MAX_VIDEO : MAX_IMAGE;
+    // kind: 'avatar' | 'ipImage' | 'ipVideo' | 'prop'
+    var max = kind === 'avatar' ? MAX_AVATAR : kind === 'ipVideo' ? MAX_VIDEO : kind === 'prop' ? MAX_PROP : MAX_IMAGE;
     var tooBig = checkSize(file, max);
     if (tooBig) return Promise.reject(new Error(tooBig));
 
     // ===== 云端模式：失败自动降级 IndexedDB（不再弹失败 toast）=====
     if (sb){
-      var ext = (file.name.split('.').pop() || (kind === 'ipVideo' ? 'mp4' : 'jpg')).toLowerCase();
-      var subdir = kind === 'avatar' ? 'avatars' : kind === 'ipVideo' ? 'ips' : 'ips';
+      var ext = (file.name.split('.').pop() || (kind === 'ipVideo' ? 'mp4' : kind === 'prop' ? 'gif' : 'jpg')).toLowerCase();
+      var subdir = kind === 'avatar' ? 'avatars' : kind === 'prop' ? 'props' : 'ips';
       // 用时间戳 + subjectId 避免同秒上传冲突
       var me = you();
       var tag = (me ? me.id : 'anon') + '-' + Date.now();
-      var path = subdir + '/' + tag + (kind === 'avatar' ? '/avatar.' : kind === 'ipVideo' ? '/video.' : '/cover.') + ext;
+      var path = subdir + '/' + tag + (kind === 'avatar' ? '/avatar.' : kind === 'ipVideo' ? '/video.' : kind === 'prop' ? '/prop.' : '/cover.') + ext;
       return sb.storage.from('ip-media').upload(path, file, { upsert:true, contentType: file.type })
         .then(function(res){
           if (res.error) throw res.error;
@@ -1199,11 +1133,21 @@
 
   /* ============ EVENTS ============ */
   $('nameSearch').addEventListener('input', function(e){ renderNameGrid(e.target.value); });
+  $('loginBtn').addEventListener('click', loginByName);
+  $('nameSearch').addEventListener('keydown', function(e){ if (e.key === 'Enter'){ e.preventDefault(); loginByName(); } });
+  $('shareLinkBtn').addEventListener('click', function(){
+    var url = location.href.split('#')[0];
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(url).then(function(){ showToast('已复制课堂链接 · 发给同学即可'); }, function(){ showToast('链接：'+url); });
+    } else {
+      showToast('课堂链接：'+url);
+    }
+  });
   $('gearBtn').addEventListener('click', function(){
     if (you()) openEdit(); else showToast('关于 · 信息已移至右上角设置');
   });
-  $('navReplay').addEventListener('click', function(){ showToast('我的回放 · 见主站 BUT/'); });
-  $('levelNav').addEventListener('click', function(){ showToast('关卡选择 · 正在等待开放中 / WAITING TO OPEN'); });
+  $('navReplay').addEventListener('click', function(){ showToast('我的空间 · 见主站 BUT/'); });
+  $('levelNav').addEventListener('click', function(){ window.open('but_canvas.html', '_blank'); });
   $('editMyIp').addEventListener('click', openEdit);
   $('swapIdentity').addEventListener('click', swapIdentity);
   $('editSwap').addEventListener('click', swapIdentity);
@@ -1253,6 +1197,24 @@
     $('ipVidFile').value = '';
     showToast('已清除视频 · 保存后生效');
   });
+  $('propBtn').addEventListener('click', function(){ $('propFile').click(); });
+  $('propFile').addEventListener('change', function(e){
+    var file = e.target.files[0]; if (!file) return;
+    var err = checkSize(file, MAX_PROP);
+    if (err) { showToast(err); e.target.value=''; return; }
+    previewFile(file, function(src){
+      pendingProp = src;
+      $('propPrev').className = 'up-prev has-media';
+      $('propPrev').innerHTML = '<img src="'+esc(src)+'" alt="">';
+    });
+  });
+  $('propClear').addEventListener('click', function(){
+    pendingProp = '';
+    $('propPrev').className = 'up-prev';
+    $('propPrev').innerHTML = '<span class="ph">未上传</span>';
+    $('propFile').value = '';
+    showToast('已清除道具 · 保存后生效');
+  });
   $('editSave').addEventListener('click', function(){
     var me = you(); if (!me) return;
     var nm = $('editName').value.trim();
@@ -1268,22 +1230,25 @@
         var avFile = $('avFile').files[0];
         var ipFile = $('ipFile').files[0];
         var vdFile = $('ipVidFile').files[0];
+        var prFile = $('propFile').files[0];
         var tasks = [];
         if (avFile) tasks.push(uploadMedia(avFile, 'avatar').then(function(u){ pendingAvatar = u; }));
         if (ipFile) tasks.push(uploadMedia(ipFile, 'ipImage').then(function(u){ pendingIp     = u; }));
         if (vdFile) tasks.push(uploadMedia(vdFile, 'ipVideo').then(function(u){ pendingIpVid  = u; }));
+        if (prFile) tasks.push(uploadMedia(prFile, 'prop').then(function(u){ pendingProp = u; }));
         return Promise.all(tasks);
       })
       .then(function(){
         me.avatar  = pendingAvatar;
         me.ipImage = pendingIp;
         me.ipVideo = pendingIpVid;
+        me.prop    = pendingProp;
         me._dirty  = true;
         saveAll();
         closeEdit();
         renderAll();
         // 提示词：「云端表已就绪」不会写，普通同学只关心文件到哪了
-        var count = (avFile?1:0) + (ipFile?1:0) + (vdFile?1:0);
+        var count = (avFile?1:0) + (ipFile?1:0) + (vdFile?1:0) + (prFile?1:0);
         if (count) showToast('已保存到你的设备 · '+count+' 个文件');
         else       showToast('已保存 · '+me.nameZh+' 的 IP');
       })
