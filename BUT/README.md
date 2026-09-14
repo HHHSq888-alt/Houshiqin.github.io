@@ -6,6 +6,10 @@
 ## 文件
 - `index.html` —— 「我的回放 #2125」单屏（电影成片里出现的那一屏，可点击）
 - `but_netizen_page.html` —— 「人生册 / Life Register」其他被记录对象的人册流页（游戏内其他屏，设计交付用）
+- `but_class.html` —— 统一课堂入口：木门登录开场、我的回放、在册目录与公共区域无限画布
+- `assets/demo/` —— 当前公共区域原型使用的示范 IP 图片与自我介绍视频
+
+`but_canvas.html` 暂时保留为旧版独立画布兼容入口；新版公共区域已经直接整合进 `but_class.html`，不会再从侧栏打开新页面。
 
 ## 放到仓库的步骤
 1. 把本目录里的 `index.html` 与 `but_netizen_page.html` 复制到仓库的 `BUT/` 文件夹
