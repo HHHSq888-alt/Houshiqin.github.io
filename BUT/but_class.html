@@ -329,7 +329,7 @@
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
   /* ============ BUT ASSISTANT ============ */
-  .but-assistant{position:fixed;right:24px;bottom:24px;z-index:105;display:flex;flex-direction:column;align-items:flex-end;gap:12px;}
+  .but-assistant{position:fixed;right:18px;bottom:18px;z-index:105;display:flex;flex-direction:column;align-items:flex-end;gap:10px;}
   .assistant-panel{width:min(340px,calc(100vw - 48px));background:rgba(255,255,255,.97);border:1px solid var(--border);border-radius:18px;box-shadow:0 20px 55px rgba(20,28,40,.2);overflow:hidden;opacity:0;visibility:hidden;pointer-events:none;transform:translateY(12px) scale(.97);transform-origin:bottom right;transition:opacity .22s,transform .22s,visibility .22s;}
   .but-assistant.open .assistant-panel{opacity:1;visibility:visible;pointer-events:auto;transform:translateY(0) scale(1);}
   .assistant-head{display:flex;align-items:center;justify-content:space-between;padding:16px 17px 13px;border-bottom:1px solid var(--border-soft);}
@@ -339,11 +339,13 @@
   .assistant-item:last-child{border-bottom:0;}
   .assistant-item b{display:block;font-size:11.5px;margin-bottom:4px;color:var(--text);}
   .assistant-item p{margin:0;color:var(--text-3);font-size:10.5px;line-height:1.6;}
-  .assistant-toggle{position:relative;width:66px;height:66px;border:0;border-radius:21px;background:#18202a;color:#eef4fa;box-shadow:0 14px 32px rgba(17,24,34,.28);font:500 21px/1 var(--font-sans);letter-spacing:-.5px;transition:transform .2s,box-shadow .2s;animation:assistant-breathe 3s ease-in-out infinite;}
-  .assistant-toggle:after{content:"";position:absolute;right:11px;top:10px;width:10px;height:10px;border-radius:50%;background:#ef5555;box-shadow:0 0 0 4px rgba(239,85,85,.09);}
-  .assistant-toggle:hover,.assistant-toggle:focus-visible{transform:translateY(-3px);box-shadow:0 18px 38px rgba(17,24,34,.36);outline:none;}
+  .assistant-toggle{position:relative;width:48px;height:48px;border:0;border-radius:15px;background:#18202a;color:#eef4fa;box-shadow:0 10px 24px rgba(17,24,34,.26);font:500 14px/1 var(--font-sans);letter-spacing:-.2px;transition:transform .2s,box-shadow .2s;animation:assistant-breathe 3s ease-in-out infinite;}
+  .assistant-toggle:after{content:"";position:absolute;right:7px;top:7px;width:7px;height:7px;border-radius:50%;background:#f25555;box-shadow:0 0 5px rgba(242,85,85,.7);}
+  .assistant-toggle:before{content:"";position:absolute;right:7px;top:7px;width:7px;height:7px;border:1px solid rgba(242,85,85,.85);border-radius:50%;animation:recording-pulse 1.7s ease-out infinite;}
+  .assistant-toggle:hover,.assistant-toggle:focus-visible{transform:translateY(-2px);box-shadow:0 14px 30px rgba(17,24,34,.34);outline:none;}
   .but-assistant.open .assistant-toggle{animation:none;}
-  @keyframes assistant-breathe{0%,100%{transform:translateY(0);box-shadow:0 14px 32px rgba(17,24,34,.26)}50%{transform:translateY(-4px);box-shadow:0 19px 38px rgba(17,24,34,.34)}}
+  @keyframes assistant-breathe{0%,100%{transform:translateY(0);box-shadow:0 10px 24px rgba(17,24,34,.24)}50%{transform:translateY(-2px);box-shadow:0 14px 30px rgba(17,24,34,.32)}}
+  @keyframes recording-pulse{0%{opacity:.9;transform:scale(1)}75%,100%{opacity:0;transform:scale(2.4)}}
 
   .foot-note{margin-top:28px;font-size:10.5px;color:var(--text-4);font-family:var(--font-mono);letter-spacing:.4px;text-align:center;line-height:1.7;}
 
@@ -1715,11 +1717,11 @@
     var intro=$('doorIntro'), portal=$('doorPortal'), skip=$('doorSkip'), video=$('doorVideo'), started=false, ready=false;
     var seenKey='but_door_intro_seen_v1', returning=false;
     try{returning=localStorage.getItem(seenKey)==='1';}catch(e){}
-    if(returning)intro.classList.add('returning');
     function markSeen(){try{localStorage.setItem(seenKey,'1');}catch(e){}}
     function awaken(){
       if(started)return;
       started=true;intro.classList.add('playing');
+      if(returning)intro.classList.add('returning');
       var playPromise=video.play();
       if(playPromise&&playPromise.catch){
         playPromise.catch(function(){started=false;intro.classList.remove('playing');});
