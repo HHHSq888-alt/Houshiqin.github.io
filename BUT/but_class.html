@@ -441,6 +441,9 @@
   .door-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;background:#071915;}
   .video-start-prompt{position:absolute;left:50%;bottom:7vh;transform:translateX(-50%);z-index:4;color:rgba(232,239,233,.72);font:11px var(--font-mono);letter-spacing:1.8px;text-shadow:0 2px 12px #000;transition:opacity .8s;white-space:nowrap;}
   .door-intro.playing .video-start-prompt,.door-intro.ready .video-start-prompt{opacity:0;}
+  .door-skip{position:absolute;z-index:7;top:max(22px,env(safe-area-inset-top));right:max(24px,env(safe-area-inset-right));padding:9px 13px;border:1px solid rgba(239,232,216,.3);border-radius:999px;background:rgba(5,15,13,.38);color:rgba(239,232,216,.82);font:700 10px var(--font-mono);letter-spacing:1.2px;backdrop-filter:blur(8px);opacity:0;pointer-events:none;transform:translateY(-5px);transition:opacity .3s,transform .3s,background .2s,border-color .2s;}
+  .door-intro.returning .door-skip{opacity:1;pointer-events:auto;transform:translateY(0);}
+  .door-skip:hover,.door-skip:focus-visible{background:rgba(10,29,25,.75);border-color:rgba(239,232,216,.58);color:#fff;outline:none;}
   .video-portal{position:absolute;z-index:5;left:50%;top:54%;transform:translate(-50%,-50%);width:min(23vw,360px);height:min(58vh,620px);border:0;background:transparent;opacity:0;pointer-events:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#efe8d8;font:700 11px var(--font-mono);letter-spacing:2.5px;text-shadow:0 2px 14px #000;transition:opacity 1s;}
   .video-portal span{display:flex;flex-direction:column;align-items:center;gap:10px;}
   .video-portal span:before{content:"";width:5px;height:5px;border-radius:50%;background:#f6d993;box-shadow:0 0 12px #efcf83;animation:portal-pulse 2s ease-in-out infinite;}
@@ -454,6 +457,7 @@
   <video class="door-video" id="doorVideo" muted playsinline preload="auto" aria-label="BUT 木门开场动画">
     <source src="assets/but-door-opening.mp4" type="video/mp4" />
   </video>
+  <button class="door-skip" id="doorSkip" type="button">跳过开场 · SKIP</button>
   <div class="video-start-prompt">移动鼠标或轻触屏幕 · 点亮门廊</div>
   <button class="video-portal" id="doorPortal" type="button" aria-label="进入 BUT">
     <span>点击进入 · ENTER</span>
@@ -1659,7 +1663,11 @@
   }
 
   function startDoorIntro(){
-    var intro=$('doorIntro'), portal=$('doorPortal'), video=$('doorVideo'), started=false, ready=false;
+    var intro=$('doorIntro'), portal=$('doorPortal'), skip=$('doorSkip'), video=$('doorVideo'), started=false, ready=false;
+    var seenKey='but_door_intro_seen_v1', returning=false;
+    try{returning=localStorage.getItem(seenKey)==='1';}catch(e){}
+    if(returning)intro.classList.add('returning');
+    function markSeen(){try{localStorage.setItem(seenKey,'1');}catch(e){}}
     function awaken(){
       if(started)return;
       started=true;intro.classList.add('playing');
@@ -1668,9 +1676,11 @@
         playPromise.catch(function(){started=false;intro.classList.remove('playing');});
       }
     }
-    function holdFinalFrame(){ready=true;intro.classList.add('ready');}
-    function enterPortal(){
-      if(!ready)return;
+    function holdFinalFrame(){ready=true;markSeen();intro.classList.add('ready','returning');}
+    function enterPortal(force){
+      if(!ready&&!force)return;
+      markSeen();
+      try{video.pause();}catch(e){}
       $('enterOverlay').style.display='';
       intro.classList.add('done');
       setTimeout(function(){try{$('nameSearch').focus({preventScroll:true});}catch(e){}},240);
@@ -1680,8 +1690,9 @@
     document.addEventListener('keydown',awaken,{once:true});
     video.addEventListener('ended',holdFinalFrame);
     video.addEventListener('loadedmetadata',function(){video.currentTime=0;});
-    portal.addEventListener('click',enterPortal);
+    portal.addEventListener('click',function(){enterPortal(false);});
     portal.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();enterPortal();}});
+    skip.addEventListener('click',function(){enterPortal(true);});
   }
 
   // 渲染「上次选了」快速通道卡
